@@ -84,7 +84,7 @@ L'état utilisateur est géré par `AuthContext` :
 
 Le client `src/api/client.js` ajoute automatiquement l'en-tête `Authorization: Bearer <access>` et tente un refresh transparent sur `401`.
 
-## Retours client pris en compte
+## Retours Datascientest pris en compte
 
 - Menu burger fonctionnel qui se ferme au clic sur un lien ou au changement de route.
 - Footer intégralement traduit en français.
