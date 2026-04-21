@@ -879,6 +879,33 @@ footer {
 }
 
 /* Admin utilisateurs */
+.admin-subnav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-subnav-link {
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tertiary-color);
+    border: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-subnav-link:hover {
+    color: var(--secondary-color);
+}
+
+.admin-subnav-link-active {
+    color: var(--quinary-color);
+    border-color: rgba(192, 132, 252, 0.5);
+    background-color: rgba(192, 132, 252, 0.08);
+}
+
 .admin-container {
     padding: 48px 32px 72px;
 }
@@ -1022,6 +1049,55 @@ footer {
 .admin-toggle-off:hover:not(:disabled) {
     color: var(--danger-color);
     border-color: var(--danger-color);
+}
+
+.admin-message-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-message-card {
+    padding: 20px 22px;
+    background-color: var(--surface-color);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-message-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.admin-message-subject {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--secondary-color);
+}
+
+.admin-message-from {
+    font-size: 14px;
+    color: var(--tertiary-color);
+    margin-bottom: 14px;
+}
+
+.admin-message-from a {
+    color: var(--quinary-color);
+}
+
+.admin-message-from a:hover {
+    text-decoration: underline;
+}
+
+.admin-message-body {
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.88);
+    white-space: pre-wrap;
 }
 
 /* Tablet breakpoint */

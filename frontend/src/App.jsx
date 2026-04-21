@@ -13,6 +13,7 @@ import Blog from './pages/Blog';
 import Article from './pages/Article';
 import ArticleNew from './pages/ArticleNew';
 import AdminUsers from './pages/AdminUsers';
+import AdminMessages from './pages/AdminMessages';
 import logo from './assets/weeb-logo.svg';
 
 function App() {
@@ -34,6 +35,14 @@ function App() {
                             element={(
                                 <ProtectedRoute staffOnly>
                                     <AdminUsers />
+                                </ProtectedRoute>
+                            )}
+                        />
+                        <Route
+                            path="/admin/messages"
+                            element={(
+                                <ProtectedRoute staffOnly>
+                                    <AdminMessages />
                                 </ProtectedRoute>
                             )}
                         />

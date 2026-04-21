@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../api/client';
 import { useAuth } from '../context/AuthContext';
+import AdminSubnav from '../components/AdminSubnav';
 
 const formatDate = (iso) =>
     new Date(iso).toLocaleDateString('fr-FR', {
@@ -57,6 +58,7 @@ const AdminUsers = () => {
 
     return (
         <section className='admin-container container-large'>
+            <AdminSubnav />
             <header className='admin-header'>
                 <div>
                     <h1 className='admin-title'>
