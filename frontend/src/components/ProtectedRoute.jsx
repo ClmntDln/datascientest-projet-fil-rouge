@@ -1,11 +1,19 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, requireActive = true }) => {
+const ProtectedRoute = ({ children, requireActive = true, staffOnly = false }) => {
     const { user, loading } = useAuth();
 
     if (loading) return <p className='page-loading container-narrow'>Chargement…</p>;
     if (!user) return <Navigate to="/login" replace />;
+    if (staffOnly && !user.is_staff) {
+        return (
+            <section className='container-narrow page-message'>
+                <h1 className='page-message-title'>Accès réservé</h1>
+                <p>Cette page est réservée aux administrateurs du site.</p>
+            </section>
+        );
+    }
     if (requireActive && !user.is_active) {
         return (
             <section className='container-narrow page-message'>

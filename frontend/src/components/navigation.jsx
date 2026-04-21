@@ -45,6 +45,9 @@ const Navigation = ({ logo }) => {
                         {user?.is_active && (
                             <li className='navigation-item'><Link to="/blog/nouveau" onClick={close}>Nouvel article</Link></li>
                         )}
+                        {user?.is_staff && (
+                            <li className='navigation-item'><Link to="/admin/utilisateurs" onClick={close}>Admin</Link></li>
+                        )}
                     </ul>
                     <div className='navigation-buttons'>
                         {user ? (

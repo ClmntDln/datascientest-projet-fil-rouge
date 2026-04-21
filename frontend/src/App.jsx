@@ -12,6 +12,7 @@ import ResetPassword from './pages/ResetPassword';
 import Blog from './pages/Blog';
 import Article from './pages/Article';
 import ArticleNew from './pages/ArticleNew';
+import AdminUsers from './pages/AdminUsers';
 import logo from './assets/weeb-logo.svg';
 
 function App() {
@@ -28,6 +29,14 @@ function App() {
                         <Route path="/reset-password" element={<ResetPassword />} />
                         <Route path="/blog" element={<Blog />} />
                         <Route path="/blog/nouveau" element={<ProtectedRoute><ArticleNew /></ProtectedRoute>} />
+                        <Route
+                            path="/admin/utilisateurs"
+                            element={(
+                                <ProtectedRoute staffOnly>
+                                    <AdminUsers />
+                                </ProtectedRoute>
+                            )}
+                        />
                         <Route path="/blog/:id" element={<Article />} />
                     </Routes>
                 </main>
