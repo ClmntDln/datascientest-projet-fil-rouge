@@ -14,6 +14,7 @@ import Article from './pages/Article';
 import ArticleNew from './pages/ArticleNew';
 import AdminUsers from './pages/AdminUsers';
 import AdminMessages from './pages/AdminMessages';
+import NotFound from './pages/NotFound';
 import logo from './assets/weeb-logo.svg';
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
                             )}
                         />
                         <Route path="/blog/:id" element={<Article />} />
+                        <Route path="*" element={<NotFound />} />
                     </Routes>
                 </main>
                 <Footer />

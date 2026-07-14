@@ -8,21 +8,33 @@ const formatDate = (iso) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-
 const Blog = () => {
     const { user } = useAuth();
     const [articles, setArticles] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
         (async () => {
+            setLoading(true);
+            setError('');
             try {
-                const data = await apiFetch('/articles/');
-                setArticles(Array.isArray(data) ? data : data.results || []);
+                const data = await apiFetch(`/articles/?page=${page}`);
+                if (Array.isArray(data)) {
+                    setArticles(data);
+                    setTotalPages(1);
+                } else {
+                    const count = data.count || 0;
+                    const pageSize = 6;
+                    setArticles(data.results || []);
+                    setTotalPages(Math.max(1, Math.ceil(count / pageSize)));
+                }
             } catch (err) {
                 setError(err.message || 'Impossible de charger les articles.');
             } finally {
                 setLoading(false);
             }
         })();
-    }, []);
+    }, [page]);
 
     return (
         <section className='blog-container container-large'>
@@ -59,6 +71,28 @@ const Blog = () => {
                     </article>
                 ))}
             </div>
+
+            {!loading && !error && totalPages > 1 && (
+                <div className='blog-pagination'>
+                    <button
+                        type='button'
+                        className='blog-pagination-button'
+                        disabled={page <= 1}
+                        onClick={() => setPage((p) => p - 1)}
+                    >
+                        Precedent
+                    </button>
+                    <span className='blog-pagination-info'>Page {page} / {totalPages}</span>
+                    <button
+                        type='button'
+                        className='blog-pagination-button'
+                        disabled={page >= totalPages}
+                        onClick={() => setPage((p) => p + 1)}
+                    >
+                        Suivant
+                    </button>
+                </div>
+            )}
         </section>
     );
 };

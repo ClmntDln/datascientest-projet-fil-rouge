@@ -27,6 +27,20 @@ const Home = () => {
                 image={sectionTrends}
                 positionImage="right"
             />
+            <section id="newsletter" className="home-newsletter-section">
+                <div className="newsletter-box">
+                    <h2 className="newsletter-title">Abonnez-vous à notre newsletter</h2>
+                    <p className="newsletter-description">Recevez chaque semaine nos meilleurs articles, tutoriels et astuces directement dans votre boîte mail.</p>
+                    <form className="newsletter-form" onSubmit={(e) => {
+                        e.preventDefault();
+                        alert("Merci pour votre abonnement ! Vous recevrez bientôt nos actualités.");
+                        e.target.reset();
+                    }}>
+                        <input type="email" placeholder="Votre adresse email" required className="newsletter-input" />
+                        <button type="submit" className="newsletter-button">S'abonner</button>
+                    </form>
+                </div>
+            </section>
         </>
     );
 };

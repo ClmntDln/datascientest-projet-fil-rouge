@@ -42,15 +42,22 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
-    const resetPassword = async (email, newPassword) => {
-        return apiFetch('/auth/reset-password/', {
+    const requestPasswordReset = async (email) => {
+        return apiFetch('/auth/reset-password/request/', {
             method: 'POST',
-            body: { email, new_password: newPassword },
+            body: { email },
+        });
+    };
+
+    const confirmPasswordReset = async (uid, token, newPassword) => {
+        return apiFetch('/auth/reset-password/confirm/', {
+            method: 'POST',
+            body: { uid, token, new_password: newPassword },
         });
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, signup, logout, resetPassword, refresh: fetchMe }}>
+        <AuthContext.Provider value={{ user, loading, login, signup, logout, requestPasswordReset, confirmPasswordReset, refresh: fetchMe }}>
             {children}
         </AuthContext.Provider>
     );

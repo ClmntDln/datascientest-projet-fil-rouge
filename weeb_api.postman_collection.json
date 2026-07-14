@@ -1,0 +1,247 @@
+{
+  "info": {
+    "name": "Weeb API - Livrable 1",
+    "description": "Collection Postman pour valider le backend Weeb (auth, articles, contacts).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "email", "value": "redacteur@weeb.local" },
+    { "key": "password", "value": "redacteur1234" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "article_id", "value": "1" },
+    { "key": "user_id", "value": "1" },
+    { "key": "reset_uid", "value": "" },
+    { "key": "reset_token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Inscription",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Jean\",\n  \"last_name\": \"Martin\",\n  \"email\": \"jean.martin@example.com\",\n  \"password\": \"motdepasse123\"\n}"
+            },
+            "url": "{{base_url}}/auth/signup/"
+          }
+        },
+        {
+          "name": "Connexion",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', d.access);",
+                  "  pm.collectionVariables.set('refresh_token', d.refresh);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/login/"
+          }
+        },
+        {
+          "name": "Actualiser le token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', d.access);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/refresh/"
+          }
+        },
+        {
+          "name": "Mon profil",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/auth/me/"
+          }
+        },
+        {
+          "name": "Demande de réinitialisation de mot de passe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const d = pm.response.json();",
+                  "  if (d.reset_uid) pm.collectionVariables.set('reset_uid', d.reset_uid);",
+                  "  if (d.reset_token) pm.collectionVariables.set('reset_token', d.reset_token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\"\n}"
+            },
+            "url": "{{base_url}}/auth/reset-password/request/"
+          }
+        },
+        {
+          "name": "Confirmer la réinitialisation de mot de passe",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"uid\": \"{{reset_uid}}\",\n  \"token\": \"{{reset_token}}\",\n  \"new_password\": \"nouveau1234\"\n}"
+            },
+            "url": "{{base_url}}/auth/reset-password/confirm/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Articles",
+      "item": [
+        {
+          "name": "Liste des articles paginés",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/articles/?page=1"
+          }
+        },
+        {
+          "name": "Créer un article",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('article_id', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Mon article test\",\n  \"excerpt\": \"Extrait test\",\n  \"content\": \"Contenu complet de test\",\n  \"image\": \"https://picsum.photos/800/400\"\n}"
+            },
+            "url": "{{base_url}}/articles/"
+          }
+        },
+        {
+          "name": "Obtenir un article",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/articles/{{article_id}}/"
+          }
+        },
+        {
+          "name": "Mettre à jour un article",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Titre mis a jour\"\n}"
+            },
+            "url": "{{base_url}}/articles/{{article_id}}/"
+          }
+        },
+        {
+          "name": "Supprimer un article",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/articles/{{article_id}}/"
+          }
+        },
+        {
+          "name": "Classifier un article",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"React et TypeScript\",\n  \"excerpt\": \"Guide frontend\",\n  \"content\": \"React, Vite, API, architecture web\"\n}"
+            },
+            "url": "{{base_url}}/articles/classify/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "item": [
+        {
+          "name": "Créer un message de contact",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Marie Curie\",\n  \"email\": \"marie@example.com\",\n  \"subject\": \"Question\",\n  \"message\": \"Bonjour, je souhaite plus d'informations.\"\n}"
+            },
+            "url": "{{base_url}}/contacts/"
+          }
+        },
+        {
+          "name": "Liste des messages de contact (staff)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": "{{base_url}}/contacts/"
+          }
+        }
+      ]
+    }
+  ]
+}

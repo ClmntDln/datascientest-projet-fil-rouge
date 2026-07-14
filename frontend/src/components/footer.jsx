@@ -12,46 +12,46 @@ const Footer = () => {
                 <div className='footer-content-col'>
                     <h3 className='footer-content-col-title'>Produit</h3>
                     <ul>
-                        <li><a href="#">Tarifs</a></li>
-                        <li><a href="#">Aperçu</a></li>
-                        <li><a href="#">Accessibilité</a></li>
+                        <li><Link to="/blog">Tarifs</Link></li>
+                        <li><Link to="/blog">Aperçu</Link></li>
+                        <li><Link to="/contact">Accessibilité</Link></li>
                     </ul>
                 </div>
                 <div className='footer-content-col'>
                     <h3 className='footer-content-col-title'>Solutions</h3>
                     <ul>
-                        <li><a href="#">Brainstorming</a></li>
-                        <li><a href="#">Idéation</a></li>
-                        <li><a href="#">Maquettage</a></li>
-                        <li><a href="#">Recherche</a></li>
+                        <li><Link to="/blog">Brainstorming</Link></li>
+                        <li><Link to="/blog">Idéation</Link></li>
+                        <li><Link to="/blog">Maquettage</Link></li>
+                        <li><Link to="/blog">Recherche</Link></li>
                     </ul>
                 </div>
                 <div className='footer-content-col'>
                     <h3 className='footer-content-col-title'>Ressources</h3>
                     <ul>
-                        <li><a href="#">Centre d'aide</a></li>
+                        <li><Link to="/contact">Centre d'aide</Link></li>
                         <li><Link to="/blog">Blog</Link></li>
-                        <li><a href="#">Tutoriels</a></li>
+                        <li><Link to="/blog">Tutoriels</Link></li>
                     </ul>
                 </div>
                 <div className='footer-content-col'>
                     <h3 className='footer-content-col-title'>Entreprise</h3>
                     <ul>
                         <li><Link to="/contact">Contact</Link></li>
-                        <li><a href="#">Presse</a></li>
-                        <li><a href="#">Événements</a></li>
-                        <li><a href="#">Carrières</a></li>
+                        <li><Link to="/contact">Presse</Link></li>
+                        <li><Link to="/contact">Événements</Link></li>
+                        <li><Link to="/contact">Carrières</Link></li>
                     </ul>
                 </div>
             </div>
             <div className='footer-bottom container-large'>
                 <p>© 2026 Weeb. Tous droits réservés.</p>
                 <div className='footer-social-links'>
-                    <a href="#" aria-label="YouTube"><FaYoutube size={22} /></a>
-                    <a href="#" aria-label="Facebook"><FaFacebookF size={22} /></a>
-                    <a href="#" aria-label="Twitter"><FaTwitter size={22} /></a>
-                    <a href="#" aria-label="Instagram"><FaInstagram size={22} /></a>
-                    <a href="#" aria-label="LinkedIn"><FaLinkedinIn size={22} /></a>
+                    <a href="https://www.youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube"><FaYoutube size={22} /></a>
+                    <a href="https://www.facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook"><FaFacebookF size={22} /></a>
+                    <a href="https://x.com" target="_blank" rel="noreferrer" aria-label="Twitter"><FaTwitter size={22} /></a>
+                    <a href="https://www.instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram"><FaInstagram size={22} /></a>
+                    <a href="https://www.linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn"><FaLinkedinIn size={22} /></a>
                 </div>
             </div>
         </footer>

@@ -1,5 +1,5 @@
 """Serializers pour l'authentification et les utilisateurs."""
-from django.contrib.auth import authenticate, password_validation
+from django.contrib.auth import password_validation
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -11,8 +11,34 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'is_active', 'is_staff')
+        fields = ('id', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')
         read_only_fields = fields
+
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    """Liste des utilisateurs pour l'espace admin (staff)."""
+
+    class Meta:
+        model = User
+        fields = (
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'is_active',
+            'is_staff',
+            'is_superuser',
+            'date_joined',
+        )
+        read_only_fields = fields
+
+
+class AdminUserPatchSerializer(serializers.ModelSerializer):
+    """Mise à jour du statut actif par un administrateur."""
+
+    class Meta:
+        model = User
+        fields = ('is_active',)
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -62,20 +88,67 @@ class LoginSerializer(TokenObtainPairSerializer):
 
 
 class ResetPasswordSerializer(serializers.Serializer):
-    """Réinitialisation simplifiée : email + nouveau mot de passe."""
+    """Réinitialisation simplifiée (email + nouveau mot de passe)."""
 
     email = serializers.EmailField()
     new_password = serializers.CharField(write_only=True, min_length=8)
+
+    def validate_email(self, value):
+        if not User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError('Aucun compte associé à cet email.')
+        return value.lower()
 
     def validate_new_password(self, value):
         password_validation.validate_password(value)
         return value
 
     def save(self, **kwargs):
-        email = self.validated_data['email']
-        user = User.objects.filter(email__iexact=email).first()
-        if user is None:
-            raise serializers.ValidationError({'detail': 'Aucun compte associé à cet email.'})
+        user = User.objects.get(email__iexact=self.validated_data['email'])
         user.set_password(self.validated_data['new_password'])
-        user.save(update_fields=['password'])
+        user.save()
+        return user
+
+
+class ResetPasswordRequestSerializer(serializers.Serializer):
+    """Demande de réinitialisation de mot de passe (Step 1)."""
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        return value.lower()
+
+
+class ResetPasswordConfirmSerializer(serializers.Serializer):
+    """Confirmation de la réinitialisation de mot de passe (Step 2)."""
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(write_only=True, min_length=8)
+
+    def validate_new_password(self, value):
+        password_validation.validate_password(value)
+        return value
+
+    def validate(self, attrs):
+        from django.utils.http import urlsafe_base64_decode
+        from django.contrib.auth.tokens import default_token_generator
+        uid = attrs.get('uid')
+        token = attrs.get('token')
+
+        try:
+            user_id = urlsafe_base64_decode(uid).decode()
+            user = User.objects.filter(pk=user_id).first()
+        except Exception:
+            user = None
+
+        if not user or not default_token_generator.check_token(user, token):
+            raise serializers.ValidationError(
+                {'token': 'Le code de réinitialisation est invalide ou a expiré.'}
+            )
+
+        attrs['user'] = user
+        return attrs
+
+    def save(self, **kwargs):
+        user = self.validated_data['user']
+        user.set_password(self.validated_data['new_password'])
+        user.save()
         return user

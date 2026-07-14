@@ -595,6 +595,17 @@ footer {
     transform: translateY(-2px);
 }
 
+.login-button-secondary {
+    background-color: transparent;
+    color: var(--secondary-color);
+}
+
+.login-button-secondary:hover:not(:disabled) {
+    background-color: var(--quinary-color);
+    border-color: var(--quinary-color);
+    color: var(--primary-color);
+}
+
 .contact-button:disabled,
 .login-button:disabled {
     opacity: 0.6;
@@ -791,6 +802,38 @@ footer {
     letter-spacing: 0.5px;
     padding-top: 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.blog-pagination {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.blog-pagination-button {
+    padding: 8px 14px;
+    border: 1px solid var(--border-color);
+    background: var(--primary-color);
+    color: var(--secondary-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.blog-pagination-button:hover:not(:disabled) {
+    border-color: var(--quinary-color);
+    color: var(--quinary-color);
+}
+
+.blog-pagination-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.blog-pagination-info {
+    font-size: 14px;
+    color: var(--tertiary-color);
 }
 
 /* Article detail */
@@ -1268,3 +1311,140 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+
+/* Newsletter Section */
+.home-newsletter-section {
+    padding: 80px 20px;
+    background-color: var(--surface-color);
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.newsletter-box {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.newsletter-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--secondary-color);
+}
+
+.newsletter-description {
+    color: var(--tertiary-color);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.newsletter-input {
+    flex: 1;
+    max-width: 360px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    font-size: 14px;
+    transition: all 0.25s ease;
+}
+
+.newsletter-input:focus {
+    outline: none;
+    border-color: var(--quinary-color);
+    box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.15);
+}
+
+.newsletter-button {
+    padding: 12px 24px;
+    background-color: var(--quinary-color);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.newsletter-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(192, 132, 252, 0.3);
+}
+
+/* 404 Page */
+.notfound-container {
+    padding: 100px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 200px);
+}
+
+.notfound-code {
+    font-size: 120px;
+    font-weight: 900;
+    color: var(--quinary-color);
+    line-height: 1;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(192, 132, 252, 0.2);
+}
+
+.notfound-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--secondary-color);
+}
+
+.notfound-description {
+    font-size: 16px;
+    color: var(--tertiary-color);
+    max-width: 450px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.notfound-button {
+    display: inline-block;
+    text-decoration: none;
+}
+
+/* Responsive adjustments for Newsletter and 404 */
+@media (max-width: 768px) {
+    .home-newsletter-section {
+        padding: 50px 16px;
+    }
+    .newsletter-title {
+        font-size: 26px;
+    }
+    .newsletter-form {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+    .newsletter-input {
+        width: 100%;
+        max-width: none;
+    }
+    .newsletter-button {
+        width: 100%;
+    }
+    .notfound-code {
+        font-size: 80px;
+    }
+    .notfound-title {
+        font-size: 24px;
+    }
+}
+
