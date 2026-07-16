@@ -11,8 +11,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')
+        fields = ('id', 'email', 'first_name', 'last_name', 'is_active', 'is_staff')
         read_only_fields = fields
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.is_staff:
+            data['is_superuser'] = instance.is_superuser
+        return data
 
 
 class AdminUserSerializer(serializers.ModelSerializer):

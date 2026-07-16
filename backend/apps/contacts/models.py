@@ -7,6 +7,12 @@ class Contact(models.Model):
     email = models.EmailField('email')
     subject = models.CharField('sujet', max_length=200)
     message = models.TextField('message')
+    consent_given = models.BooleanField(
+        'consentement RGPD',
+        default=False,
+        help_text='Consentement au traitement des données personnelles.',
+    )
+    consent_at = models.DateTimeField('consentement le', null=True, blank=True)
     created_at = models.DateTimeField('reçu le', auto_now_add=True)
 
     class Meta:

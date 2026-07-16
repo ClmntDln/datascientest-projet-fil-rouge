@@ -49,12 +49,16 @@ Identifiants de démonstration créés par `seed` :
 | POST | `/api/auth/reset-password/request/` | publique | Demande de reset (uid/token en DEBUG) |
 | POST | `/api/auth/reset-password/confirm/` | publique | Confirme le reset avec uid + token |
 | GET  | `/api/auth/me/` | Bearer | Profil de l'utilisateur courant |
-| GET  | `/api/articles/` | publique | Liste des articles |
+| GET  | `/api/auth/me/export/` | Bearer | Export RGPD des données personnelles |
+| DELETE | `/api/auth/me/delete/` | Bearer | Suppression du compte (RGPD) |
+| GET  | `/api/health/` | publique | État de santé de l'API et de la base |
+| GET  | `/api/monitoring/metrics/` | Bearer staff | Indicateurs de performance et seuils d'alerte |
+| GET  | `/api/articles/` | publique | Liste des articles (paginée) |
 | POST | `/api/articles/` | Bearer (`is_active`) | Création d'un article |
 | GET  | `/api/articles/<id>/` | publique | Détail d'un article |
 | PUT/PATCH | `/api/articles/<id>/` | auteur | Modification |
 | DELETE | `/api/articles/<id>/` | auteur | Suppression |
-| POST | `/api/contacts/` | publique | Soumission du formulaire de contact |
+| POST | `/api/contacts/` | publique | Soumission du formulaire de contact (`consent_given` requis) |
 
 ## Rôles utilisateurs
 
@@ -75,12 +79,31 @@ backend/
     users/              # User custom + auth (signup, login JWT, me, reset)
     articles/           # modèle + ViewSet CRUD + IsOwnerOrReadOnly
     contacts/           # formulaire de contact public
+    monitoring/       # health check /api/health/
+```
+
+## Monitoring
+
+- **Health check** : `GET /api/health/` retourne `{"status": "ok", "database": "ok"}`.
+- **Métriques** : `GET /api/monitoring/metrics/` (staff) — requêtes, taux d'erreur, latence moyenne/P95.
+- **Alertes** : log + Sentry si taux d'erreur ou latence P95 dépassent les seuils (`MONITORING_*` dans `.env`).
+- **Sentry** : définir `SENTRY_DSN` dans `.env` pour activer le suivi des erreurs (optionnel en dev).
+
+## Sécurité et RGPD
+
+- Rate limiting sur les endpoints d'authentification (10 req/min).
+- Export des données : `GET /api/auth/me/export/`.
+- Suppression de compte : `DELETE /api/auth/me/delete/` (interdit pour les comptes staff).
+- Consentement obligatoire sur le formulaire de contact (`consent_given: true`).
+- Headers de sécurité activés automatiquement quand `DEBUG=False`.
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest
 ```
 
 ## Activer un utilisateur
 
 Depuis l'admin Django (`/admin/users/user/`) : sélectionner les utilisateurs concernés et exécuter l'action « Activer les utilisateurs sélectionnés », ou cocher `is_active` individuellement.
-
-## Tests Postman
-
-Une collection Postman peut être construite en s'appuyant sur le tableau d'endpoints ci-dessus. Pour les routes protégées, obtenir un `access` via `/api/auth/login/` puis l'ajouter dans l'en-tête `Authorization: Bearer <token>`.

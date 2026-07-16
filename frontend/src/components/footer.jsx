@@ -45,7 +45,7 @@ const Footer = () => {
                 </div>
             </div>
             <div className='footer-bottom container-large'>
-                <p>© 2026 Weeb. Tous droits réservés.</p>
+                <p>© 2026 Weeb. Tous droits réservés. <Link to="/confidentialite">Confidentialité</Link></p>
                 <div className='footer-social-links'>
                     <a href="#" aria-label="YouTube"><FaYoutube size={22} /></a>
                     <a href="#" aria-label="Facebook"><FaFacebookF size={22} /></a>

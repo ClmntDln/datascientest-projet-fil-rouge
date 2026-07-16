@@ -14,6 +14,12 @@ const AdminSubnav = () => (
         >
             Messages
         </NavLink>
+        <NavLink
+            to="/admin/monitoring"
+            className={({ isActive }) => `admin-subnav-link${isActive ? ' admin-subnav-link-active' : ''}`}
+        >
+            Monitoring
+        </NavLink>
     </nav>
 );
 

@@ -5,6 +5,7 @@ const initial = { name: '', email: '', subject: '', message: '' };
 
 const Contact = () => {
     const [form, setForm] = useState(initial);
+    const [consent, setConsent] = useState(false);
     const [status, setStatus] = useState({ type: '', msg: '' });
     const [loading, setLoading] = useState(false);
 
@@ -12,12 +13,23 @@ const Contact = () => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        if (!consent) {
+            setStatus({
+                type: 'error',
+                msg: 'Vous devez accepter le traitement de vos données personnelles.',
+            });
+            return;
+        }
         setLoading(true);
         setStatus({ type: '', msg: '' });
         try {
-            await apiFetch('/contacts/', { method: 'POST', body: form });
+            await apiFetch('/contacts/', {
+                method: 'POST',
+                body: { ...form, consent_given: true },
+            });
             setStatus({ type: 'success', msg: 'Votre message a bien été envoyé. Merci !' });
             setForm(initial);
+            setConsent(false);
         } catch (err) {
             setStatus({ type: 'error', msg: err.message || 'Une erreur est survenue.' });
         } finally {
@@ -52,6 +64,16 @@ const Contact = () => {
                     <label htmlFor="message" className='contact-label'>Message</label>
                     <textarea id="message" name="message" rows="6" className='contact-textarea' value={form.message} onChange={onChange} required />
                 </div>
+
+                <label className='login-checkbox-label'>
+                    <input
+                        type="checkbox"
+                        className='login-checkbox'
+                        checked={consent}
+                        onChange={(e) => setConsent(e.target.checked)}
+                    />
+                    J'accepte le traitement de mes données personnelles.
+                </label>
 
                 <button type="submit" className='contact-button' disabled={loading}>
                     {loading ? 'Envoi…' : 'Envoyer le message'}

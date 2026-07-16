@@ -24,6 +24,16 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'react-refresh/only-export-components': ['error', { allowExportNames: ['useAuth'] }],
+    },
+  },
+  {
+    files: ['**/*.{test,spec}.{js,jsx}', 'src/test/**'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.vitest,
+      },
     },
   },
 ])

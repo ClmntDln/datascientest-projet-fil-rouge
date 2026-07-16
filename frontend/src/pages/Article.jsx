@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { apiFetch } from '../api/client';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const formatDate = (iso) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 
@@ -50,7 +50,7 @@ const Article = () => {
                 <span>{article.author_name}</span>
                 <span>{formatDate(article.created_at)}</span>
             </div>
-            {article.image && <div className='article-image'><img src={article.image} alt="" /></div>}
+            {article.image && <div className='article-image'><img src={article.image} alt={article.title} /></div>}
             <div className='article-content'>
                 {article.content.split('\n').map((para, i) => <p key={i}>{para}</p>)}
             </div>

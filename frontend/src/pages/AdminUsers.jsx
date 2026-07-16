@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../api/client';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import AdminSubnav from '../components/AdminSubnav';
 
 const formatDate = (iso) =>
@@ -15,6 +15,7 @@ const formatDate = (iso) =>
 const AdminUsers = () => {
     const { user: current } = useAuth();
     const [users, setUsers] = useState([]);
+    const [query, setQuery] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [busyId, setBusyId] = useState(null);
@@ -23,7 +24,7 @@ const AdminUsers = () => {
         setError('');
         try {
             const data = await apiFetch('/auth/admin/users/', { auth: true });
-            setUsers(Array.isArray(data) ? data : []);
+            setUsers(Array.isArray(data) ? data : data.results || []);
         } catch (err) {
             setError(err.message || 'Impossible de charger les utilisateurs.');
             setUsers([]);
@@ -56,6 +57,16 @@ const AdminUsers = () => {
         }
     };
 
+    const filtered = users.filter((u) => {
+        const q = query.trim().toLowerCase();
+        if (!q) return true;
+        return (
+            u.email.toLowerCase().includes(q)
+            || u.first_name.toLowerCase().includes(q)
+            || u.last_name.toLowerCase().includes(q)
+        );
+    });
+
     return (
         <section className='admin-container container-large'>
             <AdminSubnav />
@@ -78,6 +89,16 @@ const AdminUsers = () => {
             {error && <div className='form-error'>{error}</div>}
 
             {!loading && users.length > 0 && (
+                <input
+                    type="search"
+                    className='admin-search'
+                    placeholder="Rechercher par nom ou email…"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                />
+            )}
+
+            {!loading && filtered.length > 0 && (
                 <div className='admin-table-wrap'>
                     <table className='admin-table'>
                         <thead>
@@ -91,7 +112,7 @@ const AdminUsers = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {users.map((u) => {
+                            {filtered.map((u) => {
                                 const staffLocked = u.is_staff && !current?.is_superuser;
                                 const disabled =
                                     busyId === u.id || (u.is_active && u.id === current?.id);
@@ -148,8 +169,8 @@ const AdminUsers = () => {
                 </div>
             )}
 
-            {!loading && !error && users.length === 0 && (
-                <p className='admin-empty'>Aucun utilisateur enregistré.</p>
+            {!loading && !error && filtered.length === 0 && (
+                <p className='admin-empty'>{query ? 'Aucun résultat.' : 'Aucun utilisateur enregistré.'}</p>
             )}
         </section>
     );

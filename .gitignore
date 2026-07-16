@@ -17,3 +17,6 @@ dist/
 # Divers
 *.log
 .DS_Store
+livrable/
+scripts/
+

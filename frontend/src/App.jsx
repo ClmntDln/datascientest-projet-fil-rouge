@@ -14,6 +14,9 @@ import Article from './pages/Article';
 import ArticleNew from './pages/ArticleNew';
 import AdminUsers from './pages/AdminUsers';
 import AdminMessages from './pages/AdminMessages';
+import AdminMonitoring from './pages/AdminMonitoring';
+import Account from './pages/Account';
+import Privacy from './pages/Privacy';
 import NotFound from './pages/NotFound';
 import logo from './assets/weeb-logo.svg';
 
@@ -26,6 +29,8 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/contact" element={<Contact />} />
+                        <Route path="/confidentialite" element={<Privacy />} />
+                        <Route path="/compte" element={<ProtectedRoute requireActive={false}><Account /></ProtectedRoute>} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<SignUp />} />
                         <Route path="/reset-password" element={<ResetPassword />} />
@@ -44,6 +49,14 @@ function App() {
                             element={(
                                 <ProtectedRoute staffOnly>
                                     <AdminMessages />
+                                </ProtectedRoute>
+                            )}
+                        />
+                        <Route
+                            path="/admin/monitoring"
+                            element={(
+                                <ProtectedRoute staffOnly>
+                                    <AdminMonitoring />
                                 </ProtectedRoute>
                             )}
                         />

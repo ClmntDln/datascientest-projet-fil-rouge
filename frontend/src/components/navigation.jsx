@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const Navigation = ({ logo }) => {
     const [menuOpen, setMenuOpen] = useState(false);
-    const location = useLocation();
+    const { pathname } = useLocation();
+    const [menuPath, setMenuPath] = useState(pathname);
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
-    useEffect(() => {
-        setMenuOpen(false);
-    }, [location.pathname]);
-
+    const isMenuOpen = menuOpen && menuPath === pathname;
+    const openMenu = () => {
+        setMenuPath(pathname);
+        setMenuOpen(true);
+    };
     const close = () => setMenuOpen(false);
 
     const handleLogout = () => {
@@ -31,19 +33,22 @@ const Navigation = ({ logo }) => {
                 <button
                     type="button"
                     className='navigation-toggle'
-                    aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
-                    aria-expanded={menuOpen}
-                    onClick={() => setMenuOpen((v) => !v)}
+                    aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                    aria-expanded={isMenuOpen}
+                    onClick={() => (isMenuOpen ? close() : openMenu())}
                 >
-                    {menuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+                    {isMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
                 </button>
 
-                <nav className={`navigation-menu ${menuOpen ? 'open' : ''}`}>
+                <nav className={`navigation-menu ${isMenuOpen ? 'open' : ''}`}>
                     <ul className='navigation-list'>
                         <li className='navigation-item'><Link to="/blog" onClick={close}>Blog</Link></li>
                         <li className='navigation-item'><Link to="/contact" onClick={close}>Contact</Link></li>
                         {user?.is_active && (
                             <li className='navigation-item'><Link to="/blog/nouveau" onClick={close}>Nouvel article</Link></li>
+                        )}
+                        {user && (
+                            <li className='navigation-item'><Link to="/compte" onClick={close}>Mon compte</Link></li>
                         )}
                         {user?.is_staff && (
                             <li className='navigation-item'><Link to="/admin/utilisateurs" onClick={close}>Admin</Link></li>

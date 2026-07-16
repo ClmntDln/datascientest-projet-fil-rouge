@@ -1,6 +1,7 @@
 """Vues d'authentification : signup, login JWT, reset, profil courant."""
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
+from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import generics, permissions, status
@@ -8,6 +9,11 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from apps.articles.models import Article
+from apps.articles.serializers import ArticleSerializer
+from apps.contacts.models import Contact
+from apps.contacts.serializers import ContactSerializer
 
 from .models import User
 from .permissions import IsStaffMember
@@ -20,6 +26,9 @@ from .serializers import (
     SignUpSerializer,
     UserSerializer,
 )
+from .cookies import REFRESH_COOKIE, clear_auth_cookies, set_auth_cookies
+from .emails import send_password_reset_email
+from .throttles import AuthRateThrottle
 
 
 def _reset_request_response(email):
@@ -28,12 +37,21 @@ def _reset_request_response(email):
     response = {
         'detail': (
             'Si un compte est associé à cet email, un lien de réinitialisation '
-            'a été généré.'
+            'a été envoyé.'
         )
     }
-    if user and settings.DEBUG:
-        response['reset_uid'] = urlsafe_base64_encode(force_bytes(user.pk))
-        response['reset_token'] = default_token_generator.make_token(user)
+    if not user:
+        return response
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    try:
+        send_password_reset_email(user, uid, token)
+    except Exception:
+        if not settings.DEBUG:
+            return response
+    if settings.DEBUG:
+        response['reset_uid'] = uid
+        response['reset_token'] = token
     return response
 
 
@@ -42,6 +60,8 @@ class SignUpView(generics.CreateAPIView):
 
     serializer_class = SignUpSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [AuthRateThrottle]
+    throttle_scope = 'auth'
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -60,6 +80,14 @@ class LoginView(TokenObtainPairView):
 
     serializer_class = LoginSerializer
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [AuthRateThrottle]
+    throttle_scope = 'auth'
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            set_auth_cookies(response, response.data.get('access'), response.data.get('refresh'))
+        return response
 
 
 class RefreshView(TokenRefreshView):
@@ -67,11 +95,34 @@ class RefreshView(TokenRefreshView):
 
     permission_classes = [permissions.AllowAny]
 
+    def post(self, request, *args, **kwargs):
+        if not request.data.get('refresh') and request.COOKIES.get(REFRESH_COOKIE):
+            request.data._mutable = True
+            request.data['refresh'] = request.COOKIES[REFRESH_COOKIE]
+            request.data._mutable = False
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            set_auth_cookies(response, response.data.get('access'), None)
+        return response
+
+
+class LogoutView(APIView):
+    """Déconnexion : efface les cookies JWT."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        response = Response({'detail': 'Déconnexion effectuée.'})
+        clear_auth_cookies(response)
+        return response
+
 
 class ResetPasswordRequestView(APIView):
     """Step 1 : demande de réinitialisation du mot de passe."""
 
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [AuthRateThrottle]
+    throttle_scope = 'auth'
 
     def post(self, request):
         serializer = ResetPasswordRequestSerializer(data=request.data)
@@ -90,6 +141,8 @@ class ResetPasswordConfirmView(APIView):
     """Step 2 : validation du token et changement de mot de passe."""
 
     permission_classes = [permissions.AllowAny]
+    throttle_classes = [AuthRateThrottle]
+    throttle_scope = 'auth'
 
     def post(self, request):
         serializer = ResetPasswordConfirmSerializer(data=request.data)
@@ -109,6 +162,47 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class MeExportView(APIView):
+    """Export RGPD des données personnelles de l'utilisateur connecté."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        articles = Article.objects.filter(author=user)
+        contacts = Contact.objects.filter(email__iexact=user.email)
+        return Response({
+            'profile': UserSerializer(user).data,
+            'articles': ArticleSerializer(articles, many=True).data,
+            'contact_messages': ContactSerializer(contacts, many=True).data,
+            'exported_at': timezone.now().isoformat(),
+        })
+
+
+class MeDeleteView(APIView):
+    """Suppression du compte (droit à l'effacement RGPD)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        if user.is_staff:
+            return Response(
+                {
+                    'detail': (
+                        'Les comptes staff doivent être supprimés '
+                        'par un superutilisateur.'
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        Contact.objects.filter(email__iexact=user.email).delete()
+        user.delete()
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        clear_auth_cookies(response)
+        return response
 
 
 class AdminUserListView(generics.ListAPIView):

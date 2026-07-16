@@ -100,3 +100,23 @@ Le client `src/api/client.js` ajoute automatiquement l'en-tête `Authorization: 
 - `npm run build` : build de production dans `dist/`.
 - `npm run preview` : prévisualisation du build.
 - `npm run lint` : ESLint.
+- `npm test` : tests unitaires (Vitest + React Testing Library).
+- `npm run test:watch` : tests en mode interactif.
+
+## Tests
+
+Les tests utilisent **Vitest** et **React Testing Library** :
+
+```bash
+npm test
+```
+
+Couverture actuelle :
+- `Contact` : formulaire, consentement RGPD, envoi API
+- `Login` : connexion, erreurs, redirection
+- `SignUp` : validation, inscription
+- `Blog` : liste articles, état vide
+- `Account` : profil, export RGPD
+- `Privacy` : politique de confidentialité
+- `ProtectedRoute` : auth, staff, compte inactif
+- `NotFound` : page 404

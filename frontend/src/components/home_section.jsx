@@ -7,6 +7,7 @@ const HomeSection = ({
     buttonLink = '#',
     buttonText = 'Découvrir',
     image = '',
+    imageAlt = '',
     positionImage = 'left',
 }) => {
     return (
@@ -18,7 +19,7 @@ const HomeSection = ({
                 <Link to={buttonLink} className='home-section-button'>{buttonText}</Link>
             </div>
             <div className='home-section-image'>
-                <img src={image} alt="" loading="lazy" />
+                <img src={image} alt={imageAlt} loading="lazy" />
             </div>
         </section>
     );
