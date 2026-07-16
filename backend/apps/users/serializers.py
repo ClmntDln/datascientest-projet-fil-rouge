@@ -87,30 +87,9 @@ class LoginSerializer(TokenObtainPairSerializer):
         return data
 
 
-class ResetPasswordSerializer(serializers.Serializer):
-    """Réinitialisation simplifiée (email + nouveau mot de passe)."""
-
-    email = serializers.EmailField()
-    new_password = serializers.CharField(write_only=True, min_length=8)
-
-    def validate_email(self, value):
-        if not User.objects.filter(email__iexact=value).exists():
-            raise serializers.ValidationError('Aucun compte associé à cet email.')
-        return value.lower()
-
-    def validate_new_password(self, value):
-        password_validation.validate_password(value)
-        return value
-
-    def save(self, **kwargs):
-        user = User.objects.get(email__iexact=self.validated_data['email'])
-        user.set_password(self.validated_data['new_password'])
-        user.save()
-        return user
-
-
 class ResetPasswordRequestSerializer(serializers.Serializer):
     """Demande de réinitialisation de mot de passe (Step 1)."""
+
     email = serializers.EmailField()
 
     def validate_email(self, value):
@@ -119,6 +98,7 @@ class ResetPasswordRequestSerializer(serializers.Serializer):
 
 class ResetPasswordConfirmSerializer(serializers.Serializer):
     """Confirmation de la réinitialisation de mot de passe (Step 2)."""
+
     uid = serializers.CharField()
     token = serializers.CharField()
     new_password = serializers.CharField(write_only=True, min_length=8)
@@ -128,18 +108,16 @@ class ResetPasswordConfirmSerializer(serializers.Serializer):
         return value
 
     def validate(self, attrs):
-        from django.utils.http import urlsafe_base64_decode
         from django.contrib.auth.tokens import default_token_generator
-        uid = attrs.get('uid')
-        token = attrs.get('token')
+        from django.utils.http import urlsafe_base64_decode
 
         try:
-            user_id = urlsafe_base64_decode(uid).decode()
+            user_id = urlsafe_base64_decode(attrs['uid']).decode()
             user = User.objects.filter(pk=user_id).first()
         except Exception:
             user = None
 
-        if not user or not default_token_generator.check_token(user, token):
+        if not user or not default_token_generator.check_token(user, attrs['token']):
             raise serializers.ValidationError(
                 {'token': 'Le code de réinitialisation est invalide ou a expiré.'}
             )

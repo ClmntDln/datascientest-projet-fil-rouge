@@ -1,8 +1,8 @@
 """Vues d'authentification : signup, login JWT, reset, profil courant."""
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -15,11 +15,26 @@ from .serializers import (
     AdminUserPatchSerializer,
     AdminUserSerializer,
     LoginSerializer,
-    ResetPasswordRequestSerializer,
     ResetPasswordConfirmSerializer,
+    ResetPasswordRequestSerializer,
     SignUpSerializer,
     UserSerializer,
 )
+
+
+def _reset_request_response(email):
+    """Génère la réponse de demande de reset (message générique anti-énumération)."""
+    user = User.objects.filter(email__iexact=email).first()
+    response = {
+        'detail': (
+            'Si un compte est associé à cet email, un lien de réinitialisation '
+            'a été généré.'
+        )
+    }
+    if user and settings.DEBUG:
+        response['reset_uid'] = urlsafe_base64_encode(force_bytes(user.pk))
+        response['reset_token'] = default_token_generator.make_token(user)
+    return response
 
 
 class SignUpView(generics.CreateAPIView):
@@ -53,37 +68,6 @@ class RefreshView(TokenRefreshView):
     permission_classes = [permissions.AllowAny]
 
 
-class ResetPasswordView(APIView):
-    """Compatibilité: redirige vers la logique de demande de reset."""
-
-    permission_classes = [permissions.AllowAny]
-
-    def post(self, request):
-        serializer = ResetPasswordRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-        user = User.objects.filter(email__iexact=email).first()
-
-        response = {
-            'detail': (
-                'Si un compte est associé à cet email, un lien de réinitialisation '
-                'a été généré.'
-            )
-        }
-
-        if user:
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            if settings.DEBUG:
-                response['reset_uid'] = uid
-                response['reset_token'] = token
-
-        return Response(
-            response,
-            status=status.HTTP_200_OK,
-        )
-
-
 class ResetPasswordRequestView(APIView):
     """Step 1 : demande de réinitialisation du mot de passe."""
 
@@ -92,24 +76,14 @@ class ResetPasswordRequestView(APIView):
     def post(self, request):
         serializer = ResetPasswordRequestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        email = serializer.validated_data['email']
-        user = User.objects.filter(email__iexact=email).first()
+        return Response(
+            _reset_request_response(serializer.validated_data['email']),
+            status=status.HTTP_200_OK,
+        )
 
-        response = {
-            'detail': (
-                'Si un compte est associé à cet email, un lien de réinitialisation '
-                'a été généré.'
-            )
-        }
 
-        if user:
-            uid = urlsafe_base64_encode(force_bytes(user.pk))
-            token = default_token_generator.make_token(user)
-            if settings.DEBUG:
-                response['reset_uid'] = uid
-                response['reset_token'] = token
-
-        return Response(response, status=status.HTTP_200_OK)
+class ResetPasswordView(ResetPasswordRequestView):
+    """Alias de compatibilité vers la demande de reset."""
 
 
 class ResetPasswordConfirmView(APIView):

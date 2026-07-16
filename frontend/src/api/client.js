@@ -58,10 +58,19 @@ export async function apiFetch(path, { method = 'GET', body, auth = false, isFor
     }
 
     const text = await res.text();
-    const data = text ? JSON.parse(text) : null;
+    let data = null;
+    if (text) {
+        try {
+            data = JSON.parse(text);
+        } catch {
+            data = { detail: text };
+        }
+    }
 
     if (!res.ok) {
-        const err = new Error(data?.detail || data?.message || 'Erreur API');
+        const detail = data?.detail;
+        const message = Array.isArray(detail) ? detail[0] : detail || data?.message || 'Erreur API';
+        const err = new Error(typeof message === 'string' ? message : 'Erreur API');
         err.status = res.status;
         err.data = data;
         throw err;

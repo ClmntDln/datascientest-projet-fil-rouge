@@ -46,7 +46,8 @@ Identifiants de démonstration créés par `seed` :
 | POST | `/api/auth/signup/` | publique | Inscription (crée un compte `is_active=False`) |
 | POST | `/api/auth/login/` | publique | Connexion JWT (refusée si compte non validé) |
 | POST | `/api/auth/refresh/` | publique | Rafraîchit un access token |
-| POST | `/api/auth/reset-password/` | publique | Réinitialise le mot de passe (démo) |
+| POST | `/api/auth/reset-password/request/` | publique | Demande de reset (uid/token en DEBUG) |
+| POST | `/api/auth/reset-password/confirm/` | publique | Confirme le reset avec uid + token |
 | GET  | `/api/auth/me/` | Bearer | Profil de l'utilisateur courant |
 | GET  | `/api/articles/` | publique | Liste des articles |
 | POST | `/api/articles/` | Bearer (`is_active`) | Création d'un article |

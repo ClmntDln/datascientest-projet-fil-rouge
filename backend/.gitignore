@@ -7,4 +7,3 @@ venv/
 media/
 staticfiles/
 *.log
-ml/

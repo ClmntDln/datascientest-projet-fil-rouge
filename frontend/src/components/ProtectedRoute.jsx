@@ -1,11 +1,12 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children, requireActive = true, staffOnly = false }) => {
     const { user, loading } = useAuth();
+    const location = useLocation();
 
     if (loading) return <p className='page-loading container-narrow'>Chargement…</p>;
-    if (!user) return <Navigate to="/login" replace />;
+    if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
     if (staffOnly && !user.is_staff) {
         return (
             <section className='container-narrow page-message'>

@@ -35,7 +35,12 @@ const Login = () => {
             const to = location.state?.from || '/';
             navigate(to, { replace: true });
         } catch (err) {
-            setError(err.data?.detail || 'Identifiants invalides ou compte non activé.');
+            const detail = err.data?.detail;
+            setError(
+                (Array.isArray(detail) ? detail[0] : detail)
+                || err.message
+                || 'Identifiants invalides ou compte non activé.'
+            );
         } finally {
             setLoading(false);
         }
