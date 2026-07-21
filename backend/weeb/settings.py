@@ -15,6 +15,10 @@ def env_list(name, default=''):
     return [item.strip() for item in raw.split(',') if item.strip()]
 
 
+def env_origins(name, default=''):
+    return [origin.rstrip('/') for origin in env_list(name, default)]
+
+
 def env_bool(name, default='false'):
     return os.getenv(name, default).lower() == 'true'
 
@@ -150,13 +154,13 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
 }
 
-CORS_ALLOWED_ORIGINS = env_list(
+CORS_ALLOWED_ORIGINS = env_origins(
     'CORS_ALLOWED_ORIGINS',
     'http://localhost:5173,http://127.0.0.1:5173',
 )
 CORS_ALLOW_CREDENTIALS = True
 
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173').rstrip('/')
 
 EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND',
