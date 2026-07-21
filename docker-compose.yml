@@ -17,11 +17,6 @@ services:
 
   backend:
     build: ./backend
-    command: >
-      sh -c "/wait-for-db.sh db &&
-             python manage.py migrate --noinput &&
-             python manage.py seed &&
-             gunicorn weeb.wsgi:application --bind 0.0.0.0:8000"
     environment:
       SECRET_KEY: change-me-in-docker
       DEBUG: "false"
