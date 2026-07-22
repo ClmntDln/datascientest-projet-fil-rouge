@@ -8,7 +8,7 @@ def _cookie_kwargs(max_age):
     return {
         "httponly": True,
         "secure": getattr(settings, "SESSION_COOKIE_SECURE", not settings.DEBUG),
-        "samesite": "Lax",
+        "samesite": getattr(settings, "AUTH_COOKIE_SAMESITE", "Lax"),
         "max_age": max_age,
     }
 
@@ -29,5 +29,8 @@ def set_auth_cookies(response, access, refresh):
 
 
 def clear_auth_cookies(response):
-    response.delete_cookie(ACCESS_COOKIE)
-    response.delete_cookie(REFRESH_COOKIE)
+    kwargs = {"samesite": getattr(settings, "AUTH_COOKIE_SAMESITE", "Lax")}
+    if getattr(settings, "SESSION_COOKIE_SECURE", not settings.DEBUG):
+        kwargs["secure"] = True
+    response.delete_cookie(ACCESS_COOKIE, **kwargs)
+    response.delete_cookie(REFRESH_COOKIE, **kwargs)
