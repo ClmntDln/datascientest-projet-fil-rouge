@@ -1,43 +1,38 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { apiFetch } from '../api/client';
-import { useAuth } from '../hooks/useAuth';
-
-const formatDate = (iso) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../utils/formatDate';
+import { mediaUrl } from '../utils/media';
+import { useAsyncData } from '../hooks/useAsyncData';
+import FormMessage from '../components/FormMessage';
+import PageLoader from '../components/PageLoader';
 
 const Article = () => {
     const { id } = useParams();
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [article, setArticle] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [deleteError, setDeleteError] = useState('');
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const data = await apiFetch(`/articles/${id}/`);
-                setArticle(data);
-            } catch (err) {
-                setError(err.message || 'Article introuvable.');
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, [id]);
+    const { data: article, loading, error } = useAsyncData(
+        () => apiFetch(`/articles/${id}/`),
+        [id],
+        { errorMessage: 'Article introuvable.' },
+    );
 
     const onDelete = async () => {
         if (!window.confirm('Supprimer cet article ?')) return;
+        setDeleteError('');
         try {
             await apiFetch(`/articles/${id}/`, { method: 'DELETE', auth: true });
             navigate('/blog');
         } catch (err) {
-            setError(err.message || 'Suppression impossible.');
+            setDeleteError(err.message || 'Suppression impossible.');
         }
     };
 
-    if (loading) return <p className='page-loading container-narrow'>Chargement…</p>;
-    if (error) return <div className='container-narrow form-error'>{error}</div>;
+    if (loading) return <PageLoader />;
+    if (error) return <div className='container-narrow'><FormMessage message={error} /></div>;
     if (!article) return null;
 
     const isOwner = user && article.author === user.id;
@@ -50,10 +45,16 @@ const Article = () => {
                 <span>{article.author_name}</span>
                 <span>{formatDate(article.created_at)}</span>
             </div>
-            {article.image && <div className='article-image'><img src={article.image} alt={article.title} /></div>}
+            {article.image && (
+                <div className='article-image'>
+                    <img src={mediaUrl(article.image)} alt={article.title} />
+                </div>
+            )}
             <div className='article-content'>
                 {article.content.split('\n').map((para, i) => <p key={i}>{para}</p>)}
             </div>
+
+            <FormMessage message={deleteError} />
 
             {isOwner && (
                 <div className='article-actions'>

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import HomeHero from '../components/home_hero';
-import HomeSection from '../components/home_section';
-import HomeLogo from '../components/home_logo';
+import HomeHero from '../components/HomeHero';
+import HomeSection from '../components/HomeSection';
+import HomeLogo from '../components/HomeLogo';
 import sectionLearn from '../assets/section-learn.svg';
 import sectionTrends from '../assets/section-trends.svg';
 

@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Route } from 'react-router-dom';
 import Article from './Article';
 import { apiFetch } from '../api/client';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 import { renderWithRoutes } from '../test/utils';
 
 const mockNavigate = vi.fn();
@@ -18,7 +18,7 @@ vi.mock('../api/client', () => ({
     apiFetch: vi.fn(),
 }));
 
-vi.mock('../hooks/useAuth', () => ({
+vi.mock('../context/AuthContext', () => ({
     useAuth: vi.fn(),
 }));
 

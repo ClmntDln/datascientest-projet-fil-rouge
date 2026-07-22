@@ -1,71 +1,44 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { apiFetch } from '../api/client';
+import { formatDate } from '../utils/formatDate';
+import { useAsyncData } from '../hooks/useAsyncData';
+import { useSearchFilter } from '../hooks/useSearchFilter';
 import AdminSubnav from '../components/AdminSubnav';
-
-const formatDate = (iso) =>
-    new Date(iso).toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+import AdminPageHeader from '../components/AdminPageHeader';
+import FormMessage from '../components/FormMessage';
 
 const AdminMessages = () => {
-    const [items, setItems] = useState([]);
-    const [query, setQuery] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-
-    const load = useCallback(async () => {
-        setError('');
-        try {
+    const { data: items, loading, error, reload } = useAsyncData(
+        async () => {
             const data = await apiFetch('/contacts/', { auth: true });
-            setItems(Array.isArray(data) ? data : data.results || []);
-        } catch (err) {
-            setError(err.message || 'Impossible de charger les messages.');
-            setItems([]);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+            return Array.isArray(data) ? data : data.results || [];
+        },
+        [],
+        { errorMessage: 'Impossible de charger les messages.' },
+    );
 
-    useEffect(() => {
-        load();
-    }, [load]);
+    const getSearchText = useCallback(
+        (m) => `${m.email} ${m.name} ${m.subject}`,
+        [],
+    );
 
-    const filtered = items.filter((m) => {
-        const q = query.trim().toLowerCase();
-        if (!q) return true;
-        return (
-            m.email.toLowerCase().includes(q)
-            || m.name.toLowerCase().includes(q)
-            || m.subject.toLowerCase().includes(q)
-        );
-    });
+    const { query, setQuery, filtered } = useSearchFilter(items ?? [], getSearchText);
 
     return (
         <section className='admin-container container-large'>
             <AdminSubnav />
-            <header className='admin-header'>
-                <div>
-                    <h1 className='admin-title'>
-                        Messages <span className="thin">de contact</span>
-                    </h1>
-                    <p className='admin-description'>
-                        Messages reçus depuis le formulaire public. Les visiteurs ne reçoivent pas de
-                        copie par e-mail automatique.
-                    </p>
-                </div>
-                <button type="button" className='admin-refresh' onClick={load} disabled={loading}>
-                    Actualiser
-                </button>
-            </header>
+            <AdminPageHeader
+                title="Messages"
+                accent="de contact"
+                description="Messages reçus depuis le formulaire public."
+                onRefresh={reload}
+                loading={loading}
+            />
 
             {loading && <p className='admin-empty'>Chargement…</p>}
-            {error && <div className='form-error'>{error}</div>}
+            <FormMessage message={error} />
 
-            {!loading && items.length > 0 && (
+            {!loading && items?.length > 0 && (
                 <input
                     type="search"
                     className='admin-search'
@@ -81,7 +54,7 @@ const AdminMessages = () => {
                         <li key={m.id} className='admin-message-card'>
                             <div className='admin-message-meta'>
                                 <span className='admin-message-subject'>{m.subject}</span>
-                                <span className='admin-table-muted'>{formatDate(m.created_at)}</span>
+                                <span className='admin-table-muted'>{formatDate(m.created_at, true)}</span>
                             </div>
                             <p className='admin-message-from'>
                                 {m.name} — <a href={`mailto:${m.email}`}>{m.email}</a>

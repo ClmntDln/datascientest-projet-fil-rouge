@@ -1,62 +1,42 @@
-import { useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../api/client';
+import { useAsyncData } from '../hooks/useAsyncData';
 import AdminSubnav from '../components/AdminSubnav';
+import AdminPageHeader from '../components/AdminPageHeader';
+import FormMessage from '../components/FormMessage';
 
 const formatPercent = (value) => `${(value * 100).toFixed(1)} %`;
 
 const AdminMonitoring = () => {
-    const [metrics, setMetrics] = useState(null);
-    const [health, setHealth] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-
-    const load = useCallback(async () => {
-        setError('');
-        setLoading(true);
-        try {
-            const [metricsData, healthData] = await Promise.all([
+    const { data, loading, error, reload } = useAsyncData(
+        async () => {
+            const [metrics, health] = await Promise.all([
                 apiFetch('/monitoring/metrics/', { auth: true }),
                 apiFetch('/health/'),
             ]);
-            setMetrics(metricsData);
-            setHealth(healthData);
-        } catch (err) {
-            setError(err.message || 'Impossible de charger les indicateurs.');
-            setMetrics(null);
-            setHealth(null);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+            return { metrics, health };
+        },
+        [],
+        { errorMessage: 'Impossible de charger les indicateurs.' },
+    );
 
-    useEffect(() => {
-        load();
-    }, [load]);
-
-    const errorRateHigh = metrics
-        && metrics.error_rate >= metrics.alerts.error_rate_threshold;
-    const latencyHigh = metrics
-        && metrics.p95_latency_ms >= metrics.alerts.latency_p95_threshold_ms;
+    const metrics = data?.metrics;
+    const health = data?.health;
+    const errorRateHigh = metrics && metrics.error_rate >= metrics.alerts.error_rate_threshold;
+    const latencyHigh = metrics && metrics.p95_latency_ms >= metrics.alerts.latency_p95_threshold_ms;
 
     return (
         <section className='admin-container container-large'>
             <AdminSubnav />
-            <header className='admin-header'>
-                <div>
-                    <h1 className='admin-title'>
-                        Monitoring <span className="thin">API</span>
-                    </h1>
-                    <p className='admin-description'>
-                        Indicateurs de performance et seuils d&apos;alerte de l&apos;API Weeb.
-                    </p>
-                </div>
-                <button type="button" className='admin-refresh' onClick={load} disabled={loading}>
-                    Actualiser
-                </button>
-            </header>
+            <AdminPageHeader
+                title="Monitoring"
+                accent="API"
+                description="Indicateurs de performance et seuils d'alerte de l'API Weeb."
+                onRefresh={reload}
+                loading={loading}
+            />
 
             {loading && <p className='admin-empty'>Chargement…</p>}
-            {error && <div className='form-error'>{error}</div>}
+            <FormMessage message={error} />
 
             {!loading && metrics && (
                 <>
@@ -73,7 +53,7 @@ const AdminMonitoring = () => {
                             <span className='admin-metric-value'>{metrics.total_requests}</span>
                         </article>
                         <article className='admin-metric-card'>
-                            <span className='admin-metric-label'>Taux d&apos;erreur</span>
+                            <span className='admin-metric-label'>Taux d'erreur</span>
                             <span className={`admin-metric-value${errorRateHigh ? ' admin-metric-warn' : ''}`}>
                                 {formatPercent(metrics.error_rate)}
                             </span>

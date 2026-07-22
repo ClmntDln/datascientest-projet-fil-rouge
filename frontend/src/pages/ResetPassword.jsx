@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
+import FormField from '../components/FormField';
+import FormMessage from '../components/FormMessage';
 
 const ResetPassword = () => {
     const { requestPasswordReset, confirmPasswordReset } = useAuth();
@@ -65,10 +67,10 @@ const ResetPassword = () => {
         } catch (err) {
             const d = err.data;
             const msg =
-                d?.token?.[0] ||
-                d?.new_password?.[0] ||
-                d?.detail ||
-                'Impossible de confirmer la réinitialisation.';
+                d?.token?.[0]
+                || d?.new_password?.[0]
+                || d?.detail
+                || 'Impossible de confirmer la réinitialisation.';
             setStatus({ type: 'error', msg });
         } finally {
             setLoading(false);
@@ -87,73 +89,56 @@ const ResetPassword = () => {
             </p>
 
             <form className='login-form' onSubmit={step === 1 ? onSubmitRequest : onSubmitConfirm}>
-                {status.msg && <div className={status.type === 'success' ? 'form-success' : 'form-error'}>{status.msg}</div>}
+                <FormMessage type={status.type} message={status.msg} />
 
                 {step === 1 && (
-                    <div className='login-form-group'>
-                        <label htmlFor="email" className='login-label'>Email</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            className='login-input'
-                            value={requestForm.email}
-                            onChange={(e) => setRequestForm({ email: e.target.value })}
-                            required
-                        />
-                    </div>
+                    <FormField
+                        id="email"
+                        label="Email"
+                        type="email"
+                        name="email"
+                        value={requestForm.email}
+                        onChange={(e) => setRequestForm({ email: e.target.value })}
+                        required
+                    />
                 )}
 
                 {step === 2 && (
                     <>
                         {showDevFields && (
                             <>
-                                <div className='login-form-group'>
-                                    <label htmlFor="uid" className='login-label'>UID (dev)</label>
-                                    <input
-                                        type="text"
-                                        id="uid"
-                                        className='login-input'
-                                        value={confirmForm.uid}
-                                        onChange={(e) => setConfirmForm((prev) => ({ ...prev, uid: e.target.value }))}
-                                        required
-                                    />
-                                </div>
-                                <div className='login-form-group'>
-                                    <label htmlFor="token" className='login-label'>Token (dev)</label>
-                                    <input
-                                        type="text"
-                                        id="token"
-                                        className='login-input'
-                                        value={confirmForm.token}
-                                        onChange={(e) => setConfirmForm((prev) => ({ ...prev, token: e.target.value }))}
-                                        required
-                                    />
-                                </div>
+                                <FormField
+                                    id="uid"
+                                    label="UID (dev)"
+                                    value={confirmForm.uid}
+                                    onChange={(e) => setConfirmForm((prev) => ({ ...prev, uid: e.target.value }))}
+                                    required
+                                />
+                                <FormField
+                                    id="token"
+                                    label="Token (dev)"
+                                    value={confirmForm.token}
+                                    onChange={(e) => setConfirmForm((prev) => ({ ...prev, token: e.target.value }))}
+                                    required
+                                />
                             </>
                         )}
-                        <div className='login-form-group'>
-                            <label htmlFor="new_password" className='login-label'>Nouveau mot de passe</label>
-                            <input
-                                type="password"
-                                id="new_password"
-                                className='login-input'
-                                value={confirmForm.new_password}
-                                onChange={(e) => setConfirmForm((prev) => ({ ...prev, new_password: e.target.value }))}
-                                required
-                            />
-                        </div>
-                        <div className='login-form-group'>
-                            <label htmlFor="confirm" className='login-label'>Confirmation</label>
-                            <input
-                                type="password"
-                                id="confirm"
-                                className='login-input'
-                                value={confirmForm.confirm}
-                                onChange={(e) => setConfirmForm((prev) => ({ ...prev, confirm: e.target.value }))}
-                                required
-                            />
-                        </div>
+                        <FormField
+                            id="new_password"
+                            label="Nouveau mot de passe"
+                            type="password"
+                            value={confirmForm.new_password}
+                            onChange={(e) => setConfirmForm((prev) => ({ ...prev, new_password: e.target.value }))}
+                            required
+                        />
+                        <FormField
+                            id="confirm"
+                            label="Confirmation"
+                            type="password"
+                            value={confirmForm.confirm}
+                            onChange={(e) => setConfirmForm((prev) => ({ ...prev, confirm: e.target.value }))}
+                            required
+                        />
                     </>
                 )}
 

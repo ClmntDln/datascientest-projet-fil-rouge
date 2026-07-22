@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { render } from '@testing-library/react';
-import Navigation from './navigation';
-import { useAuth } from '../hooks/useAuth';
+import Navigation from './Navigation';
+import { useAuth } from '../context/AuthContext';
 
-vi.mock('../hooks/useAuth', () => ({
+vi.mock('../context/AuthContext', () => ({
     useAuth: vi.fn(),
 }));
 

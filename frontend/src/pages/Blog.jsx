@@ -1,38 +1,29 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiFetch } from '../api/client';
-import { useAuth } from '../hooks/useAuth';
-
-const formatDate = (iso) => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../utils/formatDate';
+import { parsePaginated } from '../utils/pagination';
+import { mediaUrl } from '../utils/media';
+import { useAsyncData } from '../hooks/useAsyncData';
+import Pagination from '../components/Pagination';
+import FormMessage from '../components/FormMessage';
 
 const Blog = () => {
     const { user } = useAuth();
-    const [articles, setArticles] = useState([]);
     const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
 
-    useEffect(() => {
-        (async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const data = await apiFetch(`/articles/?page=${page}`);
-                if (Array.isArray(data)) {
-                    setArticles(data);
-                    setTotalPages(1);
-                } else {
-                    setArticles(data.results || []);
-                    setTotalPages(Math.max(1, Math.ceil((data.count || 0) / 20)));
-                }
-            } catch (err) {
-                setError(err.message || 'Impossible de charger les articles.');
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, [page]);
+    const { data, loading, error } = useAsyncData(
+        async () => {
+            const raw = await apiFetch(`/articles/?page=${page}`);
+            return parsePaginated(raw);
+        },
+        [page],
+        { errorMessage: 'Impossible de charger les articles.' },
+    );
+
+    const articles = data?.items ?? [];
+    const totalPages = data?.totalPages ?? 1;
 
     return (
         <section className='blog-container container-large'>
@@ -47,7 +38,7 @@ const Blog = () => {
             </div>
 
             {loading && <p className='blog-empty'>Chargement…</p>}
-            {error && <div className='form-error'>{error}</div>}
+            <FormMessage message={error} />
             {!loading && !error && articles.length === 0 && (
                 <p className='blog-empty'>Aucun article publié pour le moment.</p>
             )}
@@ -57,7 +48,7 @@ const Blog = () => {
                     <article key={a.id} className='blog-card'>
                         {a.image && (
                             <div className='blog-card-image'>
-                                <img src={a.image} alt={a.title} loading="lazy" />
+                                <img src={mediaUrl(a.image)} alt={a.title} loading="lazy" />
                             </div>
                         )}
                         <div className='blog-card-body'>
@@ -74,27 +65,7 @@ const Blog = () => {
                 ))}
             </div>
 
-            {totalPages > 1 && (
-                <div className='blog-pagination'>
-                    <button
-                        type="button"
-                        className='admin-refresh'
-                        disabled={page <= 1 || loading}
-                        onClick={() => setPage((p) => p - 1)}
-                    >
-                        Précédent
-                    </button>
-                    <span className='admin-table-muted'>Page {page} / {totalPages}</span>
-                    <button
-                        type="button"
-                        className='admin-refresh'
-                        disabled={page >= totalPages || loading}
-                        onClick={() => setPage((p) => p + 1)}
-                    >
-                        Suivant
-                    </button>
-                </div>
-            )}
+            <Pagination page={page} totalPages={totalPages} loading={loading} onPageChange={setPage} />
         </section>
     );
 };

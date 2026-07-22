@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
+import FormField from '../components/FormField';
+import FormMessage from '../components/FormMessage';
 
 const initial = { first_name: '', last_name: '', email: '', password: '', password2: '' };
 
@@ -59,33 +61,56 @@ const SignUp = () => {
             <p className='login-description'>Créez votre compte pour rejoindre la communauté Weeb.</p>
 
             <form className='login-form' onSubmit={onSubmit}>
-                {error && <div className='form-error'>{error}</div>}
+                <FormMessage message={error} />
 
                 <div className='form-row'>
-                    <div className='login-form-group'>
-                        <label htmlFor="first_name" className='login-label'>Prénom</label>
-                        <input type="text" id="first_name" name="first_name" className='login-input' value={form.first_name} onChange={onChange} required />
-                    </div>
-                    <div className='login-form-group'>
-                        <label htmlFor="last_name" className='login-label'>Nom</label>
-                        <input type="text" id="last_name" name="last_name" className='login-input' value={form.last_name} onChange={onChange} required />
-                    </div>
+                    <FormField
+                        id="first_name"
+                        label="Prénom"
+                        name="first_name"
+                        value={form.first_name}
+                        onChange={onChange}
+                        required
+                    />
+                    <FormField
+                        id="last_name"
+                        label="Nom"
+                        name="last_name"
+                        value={form.last_name}
+                        onChange={onChange}
+                        required
+                    />
                 </div>
 
-                <div className='login-form-group'>
-                    <label htmlFor="email" className='login-label'>Email</label>
-                    <input type="email" id="email" name="email" className='login-input' value={form.email} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="email"
+                    label="Email"
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={onChange}
+                    required
+                />
 
-                <div className='login-form-group'>
-                    <label htmlFor="password" className='login-label'>Mot de passe</label>
-                    <input type="password" id="password" name="password" className='login-input' value={form.password} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="password"
+                    label="Mot de passe"
+                    type="password"
+                    name="password"
+                    value={form.password}
+                    onChange={onChange}
+                    required
+                />
 
-                <div className='login-form-group'>
-                    <label htmlFor="password2" className='login-label'>Confirmation</label>
-                    <input type="password" id="password2" name="password2" className='login-input' value={form.password2} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="password2"
+                    label="Confirmation"
+                    type="password"
+                    name="password2"
+                    value={form.password2}
+                    onChange={onChange}
+                    required
+                />
 
                 <button type="submit" className='login-button' disabled={loading}>
                     {loading ? 'Création…' : 'Créer mon compte'}

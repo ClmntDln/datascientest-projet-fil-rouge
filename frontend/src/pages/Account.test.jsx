@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Route } from 'react-router-dom';
 import Account from './Account';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 import { renderWithRoutes } from '../test/utils';
 
 const mockNavigate = vi.fn();
@@ -13,7 +13,7 @@ vi.mock('react-router-dom', async () => {
     return { ...actual, useNavigate: () => mockNavigate };
 });
 
-vi.mock('../hooks/useAuth', () => ({
+vi.mock('../context/AuthContext', () => ({
     useAuth: vi.fn(),
 }));
 

@@ -1,52 +1,78 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiFetch } from '../api/client';
+import { mediaUrl } from '../utils/media';
+import { useAsyncData } from '../hooks/useAsyncData';
+import FormField from '../components/FormField';
+import FormMessage from '../components/FormMessage';
 
-const initial = { title: '', excerpt: '', content: '', image: '' };
+const initial = { title: '', excerpt: '', content: '' };
 
 const ArticleNew = () => {
     const navigate = useNavigate();
     const [params] = useSearchParams();
     const editId = params.get('edit');
     const [form, setForm] = useState(initial);
-    const [error, setError] = useState('');
+    const [imageFile, setImageFile] = useState(null);
+    const [existingImage, setExistingImage] = useState('');
+    const [blobPreview, setBlobPreview] = useState('');
+    const [submitError, setSubmitError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const { error: loadError } = useAsyncData(
+        async () => {
+            const data = await apiFetch(`/articles/${editId}/`);
+            setForm({
+                title: data.title || '',
+                excerpt: data.excerpt || '',
+                content: data.content || '',
+            });
+            setExistingImage(data.image ? mediaUrl(data.image) : '');
+            return data;
+        },
+        [editId],
+        { enabled: !!editId, errorMessage: 'Article introuvable.' },
+    );
+
     useEffect(() => {
-        if (!editId) return;
-        (async () => {
-            try {
-                const data = await apiFetch(`/articles/${editId}/`);
-                setForm({
-                    title: data.title || '',
-                    excerpt: data.excerpt || '',
-                    content: data.content || '',
-                    image: data.image || '',
-                });
-            } catch (err) {
-                setError(err.message || 'Article introuvable.');
-            }
-        })();
-    }, [editId]);
+        return () => {
+            if (blobPreview) URL.revokeObjectURL(blobPreview);
+        };
+    }, [blobPreview]);
 
     const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+    const onImageChange = (e) => {
+        const file = e.target.files?.[0] ?? null;
+        setImageFile(file);
+        setBlobPreview((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return file ? URL.createObjectURL(file) : '';
+        });
+    };
+
+    const imagePreview = blobPreview || existingImage;
+
     const onSubmit = async (e) => {
         e.preventDefault();
-        setError('');
+        setSubmitError('');
         setLoading(true);
         try {
-            const payload = { ...form };
-            if (!payload.image) delete payload.image;
+            const fd = new FormData();
+            fd.append('title', form.title);
+            fd.append('excerpt', form.excerpt);
+            fd.append('content', form.content);
+            if (imageFile) fd.append('image', imageFile);
+
             if (editId) {
-                await apiFetch(`/articles/${editId}/`, { method: 'PATCH', body: payload, auth: true });
+                await apiFetch(`/articles/${editId}/`, { method: 'PATCH', body: fd, auth: true, isForm: true });
                 navigate(`/blog/${editId}`);
             } else {
-                const created = await apiFetch('/articles/', { method: 'POST', body: payload, auth: true });
+                const created = await apiFetch('/articles/', { method: 'POST', body: fd, auth: true, isForm: true });
                 navigate(`/blog/${created.id}`);
             }
         } catch (err) {
-            setError(err.message || 'Erreur lors de la publication.');
+            setSubmitError(err.message || 'Erreur lors de la publication.');
         } finally {
             setLoading(false);
         }
@@ -58,27 +84,50 @@ const ArticleNew = () => {
             <p className='contact-description'>Partagez vos découvertes avec la communauté Weeb.</p>
 
             <form className='contact-form' onSubmit={onSubmit}>
-                {error && <div className='form-error'>{error}</div>}
+                <FormMessage message={loadError || submitError} />
 
-                <div className='contact-form-group'>
-                    <label htmlFor="title" className='contact-label'>Titre</label>
-                    <input type="text" id="title" name="title" className='contact-input' value={form.title} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="title"
+                    label="Titre"
+                    name="title"
+                    value={form.title}
+                    onChange={onChange}
+                    required
+                />
 
-                <div className='contact-form-group'>
-                    <label htmlFor="excerpt" className='contact-label'>Extrait</label>
-                    <input type="text" id="excerpt" name="excerpt" className='contact-input' value={form.excerpt} onChange={onChange} maxLength={280} required />
-                </div>
+                <FormField
+                    id="excerpt"
+                    label="Extrait"
+                    name="excerpt"
+                    value={form.excerpt}
+                    onChange={onChange}
+                    maxLength={280}
+                    required
+                />
 
-                <div className='contact-form-group'>
-                    <label htmlFor="image" className='contact-label'>URL de l'image (optionnel)</label>
-                    <input type="url" id="image" name="image" className='contact-input' value={form.image} onChange={onChange} />
-                </div>
+                <FormField
+                    id="image"
+                    label="Image (optionnel)"
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={onImageChange}
+                >
+                    {imagePreview && (
+                        <img src={imagePreview} alt="Aperçu" className='article-form-preview' />
+                    )}
+                </FormField>
 
-                <div className='contact-form-group'>
-                    <label htmlFor="content" className='contact-label'>Contenu</label>
-                    <textarea id="content" name="content" rows="12" className='contact-textarea' value={form.content} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="content"
+                    label="Contenu"
+                    as="textarea"
+                    name="content"
+                    rows={12}
+                    value={form.content}
+                    onChange={onChange}
+                    required
+                />
 
                 <button type="submit" className='contact-button' disabled={loading}>
                     {loading ? 'Publication…' : editId ? 'Enregistrer' : 'Publier'}

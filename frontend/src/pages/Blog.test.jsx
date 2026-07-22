@@ -2,14 +2,14 @@ import { screen, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Blog from './Blog';
 import { apiFetch } from '../api/client';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
 import { renderWithRouter } from '../test/utils';
 
 vi.mock('../api/client', () => ({
     apiFetch: vi.fn(),
 }));
 
-vi.mock('../hooks/useAuth', () => ({
+vi.mock('../context/AuthContext', () => ({
     useAuth: vi.fn(),
 }));
 

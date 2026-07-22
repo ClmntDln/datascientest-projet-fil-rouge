@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
+import FormMessage from '../components/FormMessage';
 
 const Account = () => {
     const { user, exportAccount, deleteAccount, logout } = useAuth();
@@ -53,9 +54,7 @@ const Account = () => {
                 <p><strong>Statut :</strong> {user.is_active ? 'Compte actif' : 'En attente de validation'}</p>
             </div>
 
-            {status.msg && (
-                <div className={status.type === 'success' ? 'form-success' : 'form-error'}>{status.msg}</div>
-            )}
+            <FormMessage type={status.type} message={status.msg} />
 
             <div className='article-actions account-actions'>
                 <button

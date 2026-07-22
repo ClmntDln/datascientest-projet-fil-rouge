@@ -1,5 +1,15 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
+const SESSION_KEY = 'weeb_session';
+
+export function markSession(active) {
+    if (active) {
+        sessionStorage.setItem(SESSION_KEY, '1');
+    } else {
+        sessionStorage.removeItem(SESSION_KEY);
+    }
+}
+
 async function refreshAccess() {
     const res = await fetch(`${API_URL}/auth/refresh/`, {
         method: 'POST',
@@ -8,6 +18,29 @@ async function refreshAccess() {
         body: JSON.stringify({}),
     });
     return res.ok;
+}
+
+export async function fetchSessionUser() {
+    let res = await fetch(`${API_URL}/auth/me/`, { credentials: 'include' });
+
+    if (res.status === 401 && sessionStorage.getItem(SESSION_KEY)) {
+        if (await refreshAccess()) {
+            res = await fetch(`${API_URL}/auth/me/`, { credentials: 'include' });
+        }
+    }
+
+    if (res.status === 401) {
+        markSession(false);
+        return null;
+    }
+
+    if (!res.ok) {
+        throw new Error('Impossible de charger le profil.');
+    }
+
+    const user = await res.json();
+    markSession(true);
+    return user;
 }
 
 export async function apiFetch(path, { method = 'GET', body, auth = false, isForm = false } = {}) {

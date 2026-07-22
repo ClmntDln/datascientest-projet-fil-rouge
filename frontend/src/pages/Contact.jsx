@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { apiFetch } from '../api/client';
+import FormField from '../components/FormField';
+import FormMessage from '../components/FormMessage';
 
 const initial = { name: '', email: '', subject: '', message: '' };
 
@@ -43,27 +45,47 @@ const Contact = () => {
             <p className='contact-description'>Votre retour est essentiel pour nous améliorer ! Partagez votre expérience, dites-nous ce que vous aimez et ce que nous pourrions améliorer.</p>
 
             <form className='contact-form' onSubmit={onSubmit}>
-                {status.msg && <div className={status.type === 'success' ? 'form-success' : 'form-error'}>{status.msg}</div>}
+                <FormMessage type={status.type} message={status.msg} />
 
-                <div className='contact-form-group'>
-                    <label htmlFor="name" className='contact-label'>Nom</label>
-                    <input type="text" id="name" name="name" className='contact-input' value={form.name} onChange={onChange} placeholder="Votre nom" required />
-                </div>
+                <FormField
+                    id="name"
+                    label="Nom"
+                    name="name"
+                    value={form.name}
+                    onChange={onChange}
+                    placeholder="Votre nom"
+                    required
+                />
 
-                <div className='contact-form-group'>
-                    <label htmlFor="email" className='contact-label'>Email</label>
-                    <input type="email" id="email" name="email" className='contact-input' value={form.email} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="email"
+                    label="Email"
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={onChange}
+                    required
+                />
 
-                <div className='contact-form-group'>
-                    <label htmlFor="subject" className='contact-label'>Sujet</label>
-                    <input type="text" id="subject" name="subject" className='contact-input' value={form.subject} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="subject"
+                    label="Sujet"
+                    name="subject"
+                    value={form.subject}
+                    onChange={onChange}
+                    required
+                />
 
-                <div className='contact-form-group'>
-                    <label htmlFor="message" className='contact-label'>Message</label>
-                    <textarea id="message" name="message" rows="6" className='contact-textarea' value={form.message} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="message"
+                    label="Message"
+                    as="textarea"
+                    name="message"
+                    rows={6}
+                    value={form.message}
+                    onChange={onChange}
+                    required
+                />
 
                 <label className='login-checkbox-label'>
                     <input

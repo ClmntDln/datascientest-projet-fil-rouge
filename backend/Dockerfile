@@ -1,18 +1,25 @@
-FROM python:3.12-slim
+FROM python:3.11-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DJANGO_SETTINGS_MODULE=config.production
 
 WORKDIR /app
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
-RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev gcc postgresql-client && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libjpeg62-turbo-dev \
+    zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-COPY wait-for-db.sh /wait-for-db.sh
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /wait-for-db.sh /docker-entrypoint.sh && \
-    python manage.py collectstatic --noinput
+
+RUN sed -i 's/\r$//' entrypoint.sh \
+    && chmod +x entrypoint.sh \
+    && mkdir -p media staticfiles
 
 EXPOSE 8000
-ENTRYPOINT ["/docker-entrypoint.sh"]
+
+ENTRYPOINT ["./entrypoint.sh"]

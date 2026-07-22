@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
+import FormField from '../components/FormField';
+import FormMessage from '../components/FormMessage';
 
 const Login = () => {
     const { login } = useAuth();
@@ -39,7 +41,7 @@ const Login = () => {
             setError(
                 (Array.isArray(detail) ? detail[0] : detail)
                 || err.message
-                || 'Identifiants invalides ou compte non activé.'
+                || 'Identifiants invalides ou compte non activé.',
             );
         } finally {
             setLoading(false);
@@ -52,25 +54,35 @@ const Login = () => {
             <p className='login-description'>Connectez-vous à votre compte pour accéder à toutes les fonctionnalités.</p>
 
             <form className='login-form' onSubmit={onSubmit}>
-                {error && <div className='form-error'>{error}</div>}
+                <FormMessage message={error} />
 
-                <div className='login-form-group'>
-                    <label htmlFor="email" className='login-label'>Email</label>
-                    <input type="email" id="email" name="email" className='login-input' value={form.email} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="email"
+                    label="Email"
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={onChange}
+                    required
+                />
 
-                <div className='login-form-group'>
-                    <label htmlFor="password" className='login-label'>Mot de passe</label>
-                    <input type="password" id="password" name="password" className='login-input' value={form.password} onChange={onChange} required />
-                </div>
+                <FormField
+                    id="password"
+                    label="Mot de passe"
+                    type="password"
+                    name="password"
+                    value={form.password}
+                    onChange={onChange}
+                    required
+                />
 
                 <div className='login-form-options'>
                     <label className='login-checkbox-label'>
-                        <input 
-                            type="checkbox" 
-                            className='login-checkbox' 
-                            checked={rememberMe} 
-                            onChange={(e) => setRememberMe(e.target.checked)} 
+                        <input
+                            type="checkbox"
+                            className='login-checkbox'
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
                         />
                         Se souvenir de moi
                     </label>

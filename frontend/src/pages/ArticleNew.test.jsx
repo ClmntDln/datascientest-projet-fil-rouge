@@ -47,15 +47,16 @@ describe('ArticleNew', () => {
         await user.type(screen.getByLabelText('Contenu'), 'Contenu test');
         await user.click(screen.getByRole('button', { name: /publier/i }));
 
-        expect(apiFetch).toHaveBeenCalledWith('/articles/', {
+        expect(apiFetch).toHaveBeenCalledWith('/articles/', expect.objectContaining({
             method: 'POST',
-            body: {
-                title: 'Titre test',
-                excerpt: 'Extrait test',
-                content: 'Contenu test',
-            },
             auth: true,
-        });
+            isForm: true,
+        }));
+        const call = apiFetch.mock.calls[0][1];
+        expect(call.body).toBeInstanceOf(FormData);
+        expect(call.body.get('title')).toBe('Titre test');
+        expect(call.body.get('excerpt')).toBe('Extrait test');
+        expect(call.body.get('content')).toBe('Contenu test');
         expect(mockNavigate).toHaveBeenCalledWith('/blog/9');
     });
 });

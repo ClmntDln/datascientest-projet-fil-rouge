@@ -1,48 +1,40 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { apiFetch } from '../api/client';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../context/AuthContext';
+import { formatDate } from '../utils/formatDate';
+import { useAsyncData } from '../hooks/useAsyncData';
+import { useSearchFilter } from '../hooks/useSearchFilter';
 import AdminSubnav from '../components/AdminSubnav';
-
-const formatDate = (iso) =>
-    new Date(iso).toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+import AdminPageHeader from '../components/AdminPageHeader';
+import FormMessage from '../components/FormMessage';
 
 const AdminUsers = () => {
     const { user: current } = useAuth();
-    const [users, setUsers] = useState([]);
-    const [query, setQuery] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
     const [busyId, setBusyId] = useState(null);
+    const [actionError, setActionError] = useState('');
 
-    const load = useCallback(async () => {
-        setError('');
-        try {
+    const { data: users, setData: setUsers, loading, error, reload } = useAsyncData(
+        async () => {
             const data = await apiFetch('/auth/admin/users/', { auth: true });
-            setUsers(Array.isArray(data) ? data : data.results || []);
-        } catch (err) {
-            setError(err.message || 'Impossible de charger les utilisateurs.');
-            setUsers([]);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+            return Array.isArray(data) ? data : data.results || [];
+        },
+        [],
+        { errorMessage: 'Impossible de charger les utilisateurs.' },
+    );
 
-    useEffect(() => {
-        load();
-    }, [load]);
+    const getSearchText = useCallback(
+        (u) => `${u.email} ${u.first_name} ${u.last_name}`,
+        [],
+    );
+
+    const { query, setQuery, filtered } = useSearchFilter(users ?? [], getSearchText);
 
     const toggleActive = async (row) => {
         if (row.is_staff && !current?.is_superuser) return;
         const next = !row.is_active;
         if (!next && row.id === current?.id) return;
         setBusyId(row.id);
-        setError('');
+        setActionError('');
         try {
             const updated = await apiFetch(`/auth/admin/users/${row.id}/`, {
                 method: 'PATCH',
@@ -51,44 +43,27 @@ const AdminUsers = () => {
             });
             setUsers((list) => list.map((u) => (u.id === updated.id ? updated : u)));
         } catch (err) {
-            setError(err.data?.detail || err.message || 'Action impossible.');
+            setActionError(err.data?.detail || err.message || 'Action impossible.');
         } finally {
             setBusyId(null);
         }
     };
 
-    const filtered = users.filter((u) => {
-        const q = query.trim().toLowerCase();
-        if (!q) return true;
-        return (
-            u.email.toLowerCase().includes(q)
-            || u.first_name.toLowerCase().includes(q)
-            || u.last_name.toLowerCase().includes(q)
-        );
-    });
-
     return (
         <section className='admin-container container-large'>
             <AdminSubnav />
-            <header className='admin-header'>
-                <div>
-                    <h1 className='admin-title'>
-                        Administration <span className="thin">utilisateurs</span>
-                    </h1>
-                    <p className='admin-description'>
-                        Activez ou désactivez les comptes après inscription. Les comptes staff ne
-                        peuvent être modifiés que par un superutilisateur.
-                    </p>
-                </div>
-                <button type="button" className='admin-refresh' onClick={load} disabled={loading}>
-                    Actualiser
-                </button>
-            </header>
+            <AdminPageHeader
+                title="Administration"
+                accent="utilisateurs"
+                description="Activez ou désactivez les comptes après inscription. Les comptes staff ne peuvent être modifiés que par un superutilisateur."
+                onRefresh={reload}
+                loading={loading}
+            />
 
             {loading && <p className='admin-empty'>Chargement…</p>}
-            {error && <div className='form-error'>{error}</div>}
+            <FormMessage message={error || actionError} />
 
-            {!loading && users.length > 0 && (
+            {!loading && users?.length > 0 && (
                 <input
                     type="search"
                     className='admin-search'
@@ -114,28 +89,17 @@ const AdminUsers = () => {
                         <tbody>
                             {filtered.map((u) => {
                                 const staffLocked = u.is_staff && !current?.is_superuser;
-                                const disabled =
-                                    busyId === u.id || (u.is_active && u.id === current?.id);
+                                const disabled = busyId === u.id || (u.is_active && u.id === current?.id);
                                 return (
                                     <tr key={u.id}>
-                                        <td>
-                                            {u.first_name} {u.last_name}
-                                        </td>
+                                        <td>{u.first_name} {u.last_name}</td>
                                         <td>{u.email}</td>
-                                        <td className='admin-table-muted'>{formatDate(u.date_joined)}</td>
+                                        <td className='admin-table-muted'>{formatDate(u.date_joined, true)}</td>
                                         <td>
-                                            {u.is_superuser
-                                                ? 'Superutilisateur'
-                                                : u.is_staff
-                                                  ? 'Staff'
-                                                  : 'Utilisateur'}
+                                            {u.is_superuser ? 'Superutilisateur' : u.is_staff ? 'Staff' : 'Utilisateur'}
                                         </td>
                                         <td>
-                                            <span
-                                                className={
-                                                    u.is_active ? 'admin-badge admin-badge-on' : 'admin-badge'
-                                                }
-                                            >
+                                            <span className={u.is_active ? 'admin-badge admin-badge-on' : 'admin-badge'}>
                                                 {u.is_active ? 'Actif' : 'Inactif'}
                                             </span>
                                         </td>
@@ -145,19 +109,11 @@ const AdminUsers = () => {
                                             ) : (
                                                 <button
                                                     type="button"
-                                                    className={
-                                                        u.is_active
-                                                            ? 'admin-toggle admin-toggle-off'
-                                                            : 'admin-toggle admin-toggle-on'
-                                                    }
+                                                    className={u.is_active ? 'admin-toggle admin-toggle-off' : 'admin-toggle admin-toggle-on'}
                                                     disabled={disabled}
                                                     onClick={() => toggleActive(u)}
                                                 >
-                                                    {busyId === u.id
-                                                        ? '…'
-                                                        : u.is_active
-                                                          ? 'Désactiver'
-                                                          : 'Activer'}
+                                                    {busyId === u.id ? '…' : u.is_active ? 'Désactiver' : 'Activer'}
                                                 </button>
                                             )}
                                         </td>

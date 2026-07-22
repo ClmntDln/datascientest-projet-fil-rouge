@@ -3,7 +3,7 @@ from django.core.cache import cache
 from rest_framework.settings import api_settings
 from rest_framework.test import APIClient
 
-from apps.users.models import User
+from users.models import User
 
 
 @pytest.fixture(autouse=True)
@@ -23,10 +23,10 @@ def api_client():
 @pytest.fixture
 def user(db):
     return User.objects.create_user(
-        email='user@weeb.local',
-        password='userpass123',
-        first_name='Jean',
-        last_name='Dupont',
+        email="user@weeb.local",
+        password="userpass123",
+        first_name="Jean",
+        last_name="Dupont",
         is_active=True,
     )
 
@@ -34,10 +34,10 @@ def user(db):
 @pytest.fixture
 def inactive_user(db):
     return User.objects.create_user(
-        email='pending@weeb.local',
-        password='pending123',
-        first_name='En',
-        last_name='Attente',
+        email="pending@weeb.local",
+        password="pending123",
+        first_name="En",
+        last_name="Attente",
         is_active=False,
     )
 
@@ -45,10 +45,10 @@ def inactive_user(db):
 @pytest.fixture
 def staff_user(db):
     return User.objects.create_user(
-        email='staff@weeb.local',
-        password='staffpass123',
-        first_name='Admin',
-        last_name='Weeb',
+        email="staff@weeb.local",
+        password="staffpass123",
+        first_name="Admin",
+        last_name="Weeb",
         is_active=True,
         is_staff=True,
     )
@@ -57,9 +57,22 @@ def staff_user(db):
 @pytest.fixture
 def auth_client(user):
     client = APIClient()
-    response = client.post('/api/auth/login/', {
-        'email': user.email,
-        'password': 'userpass123',
-    }, format='json')
-    client.credentials(HTTP_AUTHORIZATION=f'Bearer {response.data["access"]}')
+    response = client.post(
+        "/api/auth/login/",
+        {"email": user.email, "password": "userpass123"},
+        format="json",
+    )
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {response.data['access']}")
+    return client
+
+
+@pytest.fixture
+def staff_client(staff_user):
+    client = APIClient()
+    response = client.post(
+        "/api/auth/login/",
+        {"email": staff_user.email, "password": "staffpass123"},
+        format="json",
+    )
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {response.data['access']}")
     return client
