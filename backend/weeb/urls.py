@@ -5,6 +5,9 @@ from django.urls import include, path
 
 from monitoring.views import HealthView, MetricsView
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/health/", HealthView.as_view(), name="health"),
@@ -12,6 +15,7 @@ urlpatterns = [
     path("api/auth/", include("users.urls")),
     path("api/contacts/", include("contacts.urls")),
     path("api/", include("articles.urls")),
+    path('sentry-debug/', trigger_error),
 ]
 
 if settings.DEBUG:
