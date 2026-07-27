@@ -15,19 +15,24 @@ describe('Navigation', () => {
         vi.clearAllMocks();
     });
 
-    const renderNav = () => render(
-        <MemoryRouter>
-            <Navigation logo="/logo.svg" />
-        </MemoryRouter>,
-    );
+    const renderNav = () =>
+        render(
+            <MemoryRouter>
+                <Navigation logo="/logo.svg" />
+            </MemoryRouter>,
+        );
 
     it('affiche les liens publics pour un visiteur', () => {
         useAuth.mockReturnValue({ user: null, logout: vi.fn() });
         renderNav();
 
         expect(screen.getByRole('link', { name: 'Blog' })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'Contact' })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'Connexion' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'Contact' }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'Connexion' }),
+        ).toBeInTheDocument();
     });
 
     it('affiche le menu utilisateur connecté', () => {
@@ -38,9 +43,13 @@ describe('Navigation', () => {
         renderNav();
 
         expect(screen.getByText('Jean')).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: 'Nouvel article' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: 'Nouvel article' }),
+        ).toBeInTheDocument();
         expect(screen.getByRole('link', { name: 'Admin' })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Déconnexion' })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: 'Déconnexion' }),
+        ).toBeInTheDocument();
     });
 
     it('appelle logout au clic sur déconnexion', async () => {

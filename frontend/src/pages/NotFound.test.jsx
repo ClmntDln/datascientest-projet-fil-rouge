@@ -5,7 +5,7 @@ import NotFound from './NotFound';
 import { renderWithRoutes } from '../test/utils';
 
 describe('NotFound', () => {
-    it('affiche la page 404 avec un lien vers l\'accueil', () => {
+    it("affiche la page 404 avec un lien vers l'accueil", () => {
         renderWithRoutes(
             <>
                 <Route path="/" element={<div>Accueil</div>} />
@@ -13,8 +13,14 @@ describe('NotFound', () => {
             </>,
             { initialEntries: ['/inexistant'] },
         );
-        expect(screen.getByRole('heading', { name: '404' })).toBeInTheDocument();
-        expect(screen.getByRole('heading', { name: /page introuvable/i })).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: /retourner à l'accueil/i })).toHaveAttribute('href', '/');
+        expect(
+            screen.getByRole('heading', { name: '404' }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', { name: /page introuvable/i }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('link', { name: /retourner à l'accueil/i }),
+        ).toHaveAttribute('href', '/');
     });
 });

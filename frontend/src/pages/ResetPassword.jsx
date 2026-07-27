@@ -9,7 +9,12 @@ const ResetPassword = () => {
     const [params] = useSearchParams();
     const [step, setStep] = useState(1);
     const [requestForm, setRequestForm] = useState({ email: '' });
-    const [confirmForm, setConfirmForm] = useState({ uid: '', token: '', new_password: '', confirm: '' });
+    const [confirmForm, setConfirmForm] = useState({
+        uid: '',
+        token: '',
+        new_password: '',
+        confirm: '',
+    });
     const [status, setStatus] = useState({ type: '', msg: '' });
     const [loading, setLoading] = useState(false);
 
@@ -30,7 +35,9 @@ const ResetPassword = () => {
             const data = await requestPasswordReset(requestForm.email);
             setStatus({
                 type: 'success',
-                msg: data.detail || 'Si un compte existe, un email de réinitialisation a été envoyé.',
+                msg:
+                    data.detail ||
+                    'Si un compte existe, un email de réinitialisation a été envoyé.',
             });
             if (data.reset_uid && data.reset_token) {
                 setConfirmForm((prev) => ({
@@ -42,7 +49,10 @@ const ResetPassword = () => {
             }
         } catch (err) {
             const d = err.data;
-            const msg = d?.email?.[0] || d?.detail || 'Impossible de créer la demande de réinitialisation.';
+            const msg =
+                d?.email?.[0] ||
+                d?.detail ||
+                'Impossible de créer la demande de réinitialisation.';
             setStatus({ type: 'error', msg });
         } finally {
             setLoading(false);
@@ -53,24 +63,37 @@ const ResetPassword = () => {
         e.preventDefault();
         setStatus({ type: '', msg: '' });
         if (confirmForm.new_password !== confirmForm.confirm) {
-            setStatus({ type: 'error', msg: 'Les mots de passe ne correspondent pas.' });
+            setStatus({
+                type: 'error',
+                msg: 'Les mots de passe ne correspondent pas.',
+            });
             return;
         }
         if (confirmForm.new_password.length < 8) {
-            setStatus({ type: 'error', msg: 'Le mot de passe doit contenir au moins 8 caractères.' });
+            setStatus({
+                type: 'error',
+                msg: 'Le mot de passe doit contenir au moins 8 caractères.',
+            });
             return;
         }
         setLoading(true);
         try {
-            await confirmPasswordReset(confirmForm.uid, confirmForm.token, confirmForm.new_password);
-            setStatus({ type: 'success', msg: 'Votre mot de passe a été réinitialisé. Vous pouvez vous connecter.' });
+            await confirmPasswordReset(
+                confirmForm.uid,
+                confirmForm.token,
+                confirmForm.new_password,
+            );
+            setStatus({
+                type: 'success',
+                msg: 'Votre mot de passe a été réinitialisé. Vous pouvez vous connecter.',
+            });
         } catch (err) {
             const d = err.data;
             const msg =
-                d?.token?.[0]
-                || d?.new_password?.[0]
-                || d?.detail
-                || 'Impossible de confirmer la réinitialisation.';
+                d?.token?.[0] ||
+                d?.new_password?.[0] ||
+                d?.detail ||
+                'Impossible de confirmer la réinitialisation.';
             setStatus({ type: 'error', msg });
         } finally {
             setLoading(false);
@@ -80,15 +103,18 @@ const ResetPassword = () => {
     const showDevFields = import.meta.env.DEV && !params.get('uid');
 
     return (
-        <section className='login-container container-narrow'>
-            <h1 className='login-title'>Mot de passe oublié</h1>
-            <p className='login-description'>
+        <section className="login-container container-narrow">
+            <h1 className="login-title">Mot de passe oublié</h1>
+            <p className="login-description">
                 {step === 1
                     ? 'Saisissez votre email pour recevoir un lien de réinitialisation.'
                     : 'Définissez votre nouveau mot de passe.'}
             </p>
 
-            <form className='login-form' onSubmit={step === 1 ? onSubmitRequest : onSubmitConfirm}>
+            <form
+                className="login-form"
+                onSubmit={step === 1 ? onSubmitRequest : onSubmitConfirm}
+            >
                 <FormMessage type={status.type} message={status.msg} />
 
                 {step === 1 && (
@@ -98,7 +124,9 @@ const ResetPassword = () => {
                         type="email"
                         name="email"
                         value={requestForm.email}
-                        onChange={(e) => setRequestForm({ email: e.target.value })}
+                        onChange={(e) =>
+                            setRequestForm({ email: e.target.value })
+                        }
                         required
                     />
                 )}
@@ -111,14 +139,24 @@ const ResetPassword = () => {
                                     id="uid"
                                     label="UID (dev)"
                                     value={confirmForm.uid}
-                                    onChange={(e) => setConfirmForm((prev) => ({ ...prev, uid: e.target.value }))}
+                                    onChange={(e) =>
+                                        setConfirmForm((prev) => ({
+                                            ...prev,
+                                            uid: e.target.value,
+                                        }))
+                                    }
                                     required
                                 />
                                 <FormField
                                     id="token"
                                     label="Token (dev)"
                                     value={confirmForm.token}
-                                    onChange={(e) => setConfirmForm((prev) => ({ ...prev, token: e.target.value }))}
+                                    onChange={(e) =>
+                                        setConfirmForm((prev) => ({
+                                            ...prev,
+                                            token: e.target.value,
+                                        }))
+                                    }
                                     required
                                 />
                             </>
@@ -128,7 +166,12 @@ const ResetPassword = () => {
                             label="Nouveau mot de passe"
                             type="password"
                             value={confirmForm.new_password}
-                            onChange={(e) => setConfirmForm((prev) => ({ ...prev, new_password: e.target.value }))}
+                            onChange={(e) =>
+                                setConfirmForm((prev) => ({
+                                    ...prev,
+                                    new_password: e.target.value,
+                                }))
+                            }
                             required
                         />
                         <FormField
@@ -136,20 +179,33 @@ const ResetPassword = () => {
                             label="Confirmation"
                             type="password"
                             value={confirmForm.confirm}
-                            onChange={(e) => setConfirmForm((prev) => ({ ...prev, confirm: e.target.value }))}
+                            onChange={(e) =>
+                                setConfirmForm((prev) => ({
+                                    ...prev,
+                                    confirm: e.target.value,
+                                }))
+                            }
                             required
                         />
                     </>
                 )}
 
-                <button type="submit" className='login-button' disabled={loading}>
-                    {loading ? 'Envoi…' : step === 1 ? 'Envoyer la demande' : 'Réinitialiser'}
+                <button
+                    type="submit"
+                    className="login-button"
+                    disabled={loading}
+                >
+                    {loading
+                        ? 'Envoi…'
+                        : step === 1
+                          ? 'Envoyer la demande'
+                          : 'Réinitialiser'}
                 </button>
 
                 {step === 2 && (
                     <button
                         type="button"
-                        className='login-button login-button-secondary'
+                        className="login-button login-button-secondary"
                         onClick={() => {
                             setStep(1);
                             setStatus({ type: '', msg: '' });
@@ -160,8 +216,10 @@ const ResetPassword = () => {
                     </button>
                 )}
 
-                <p className='login-signup'>
-                    <Link to="/login" className='login-signup-link'>Retour à la connexion</Link>
+                <p className="login-signup">
+                    <Link to="/login" className="login-signup-link">
+                        Retour à la connexion
+                    </Link>
                 </p>
             </form>
         </section>

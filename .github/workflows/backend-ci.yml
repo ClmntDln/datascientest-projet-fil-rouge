@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
           cache: pip
           cache-dependency-path: backend/requirements-dev.txt
 
@@ -36,7 +36,7 @@ jobs:
           DEBUG: 'false'
 
       - name: Run tests
-        run: pytest
+        run: pytest --cov=. --cov-report=term-missing
         env:
           SECRET_KEY: ci-secret-key-for-tests-min-32-chars
           DEBUG: 'false'

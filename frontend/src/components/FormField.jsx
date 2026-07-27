@@ -3,7 +3,9 @@ const FormField = ({ id, label, as = 'input', children, ...props }) => {
 
     return (
         <div className="form-group">
-            <label htmlFor={id} className="form-label">{label}</label>
+            <label htmlFor={id} className="form-label">
+                {label}
+            </label>
             {as === 'textarea' ? (
                 <Tag id={id} className="form-textarea" {...props} />
             ) : (

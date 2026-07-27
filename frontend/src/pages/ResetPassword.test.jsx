@@ -28,7 +28,9 @@ describe('ResetPassword', () => {
             { initialEntries: ['/reset-password'] },
         );
 
-        expect(screen.getByRole('heading', { name: /mot de passe oublié/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', { name: /mot de passe oublié/i }),
+        ).toBeInTheDocument();
         expect(screen.getByLabelText('Email')).toBeInTheDocument();
     });
 
@@ -41,19 +43,23 @@ describe('ResetPassword', () => {
         );
 
         await user.type(screen.getByLabelText('Email'), 'user@weeb.local');
-        await user.click(screen.getByRole('button', { name: /envoyer la demande/i }));
+        await user.click(
+            screen.getByRole('button', { name: /envoyer la demande/i }),
+        );
 
         expect(mockRequest).toHaveBeenCalledWith('user@weeb.local');
         expect(await screen.findByText('Email envoyé.')).toBeInTheDocument();
     });
 
-    it('affiche le formulaire de confirmation depuis l\'URL', async () => {
+    it("affiche le formulaire de confirmation depuis l'URL", async () => {
         renderWithRoutes(
             <Route path="/reset-password" element={<ResetPassword />} />,
             { initialEntries: ['/reset-password?uid=abc&token=xyz'] },
         );
 
-        expect(await screen.findByLabelText('Nouveau mot de passe')).toBeInTheDocument();
+        expect(
+            await screen.findByLabelText('Nouveau mot de passe'),
+        ).toBeInTheDocument();
         expect(screen.getByLabelText('Confirmation')).toBeInTheDocument();
     });
 });

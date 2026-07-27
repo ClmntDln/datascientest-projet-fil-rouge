@@ -22,7 +22,7 @@ describe('AdminMonitoring', () => {
                     error_rate: 0.0476,
                     avg_latency_ms: 85.5,
                     p95_latency_ms: 210,
-                    status_codes: { '200': 40, '500': 2 },
+                    status_codes: { 200: 40, 500: 2 },
                     alerts: {
                         error_rate_threshold: 0.1,
                         latency_p95_threshold_ms: 1000,
@@ -32,9 +32,14 @@ describe('AdminMonitoring', () => {
             return Promise.resolve({ status: 'ok', database: 'ok' });
         });
 
-        renderWithRouter(<AdminMonitoring />, { route: '/admin/monitoring', path: '/admin/monitoring' });
+        renderWithRouter(<AdminMonitoring />, {
+            route: '/admin/monitoring',
+            path: '/admin/monitoring',
+        });
 
-        expect(await screen.findByRole('heading', { name: /monitoring/i })).toBeInTheDocument();
+        expect(
+            await screen.findByRole('heading', { name: /monitoring/i }),
+        ).toBeInTheDocument();
         await waitFor(() => {
             expect(screen.getByText('42')).toBeInTheDocument();
             expect(screen.getByText('4.8 %')).toBeInTheDocument();

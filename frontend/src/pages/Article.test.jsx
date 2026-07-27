@@ -26,7 +26,7 @@ const article = {
     id: 1,
     title: 'Mon article',
     excerpt: 'Extrait',
-    content: 'Contenu de l\'article',
+    content: "Contenu de l'article",
     author: 5,
     author_name: 'Jean Dupont',
     created_at: '2026-01-15T10:00:00Z',
@@ -38,46 +38,57 @@ describe('Article', () => {
         useAuth.mockReturnValue({ user: null });
     });
 
-    it('affiche le contenu de l\'article', async () => {
+    it("affiche le contenu de l'article", async () => {
         apiFetch.mockResolvedValueOnce(article);
-        renderWithRoutes(
-            <Route path="/blog/:id" element={<Article />} />,
-            { initialEntries: ['/blog/1'] },
-        );
+        renderWithRoutes(<Route path="/blog/:id" element={<Article />} />, {
+            initialEntries: ['/blog/1'],
+        });
 
-        expect(await screen.findByRole('heading', { name: 'Mon article' })).toBeInTheDocument();
+        expect(
+            await screen.findByRole('heading', { name: 'Mon article' }),
+        ).toBeInTheDocument();
         expect(screen.getByText('Jean Dupont')).toBeInTheDocument();
-        expect(screen.getByText('Contenu de l\'article')).toBeInTheDocument();
+        expect(screen.getByText("Contenu de l'article")).toBeInTheDocument();
     });
 
     it('affiche les actions pour le propriétaire', async () => {
         useAuth.mockReturnValue({ user: { id: 5 } });
         apiFetch.mockResolvedValueOnce(article);
-        renderWithRoutes(
-            <Route path="/blog/:id" element={<Article />} />,
-            { initialEntries: ['/blog/1'] },
-        );
+        renderWithRoutes(<Route path="/blog/:id" element={<Article />} />, {
+            initialEntries: ['/blog/1'],
+        });
 
         await waitFor(() => {
-            expect(screen.getByRole('link', { name: /modifier/i })).toBeInTheDocument();
-            expect(screen.getByRole('button', { name: /supprimer/i })).toBeInTheDocument();
+            expect(
+                screen.getByRole('link', { name: /modifier/i }),
+            ).toBeInTheDocument();
+            expect(
+                screen.getByRole('button', { name: /supprimer/i }),
+            ).toBeInTheDocument();
         });
     });
 
-    it('supprime l\'article après confirmation', async () => {
+    it("supprime l'article après confirmation", async () => {
         useAuth.mockReturnValue({ user: { id: 5 } });
         apiFetch.mockResolvedValueOnce(article);
         apiFetch.mockResolvedValueOnce(undefined);
-        vi.stubGlobal('confirm', vi.fn(() => true));
-
-        const user = userEvent.setup();
-        renderWithRoutes(
-            <Route path="/blog/:id" element={<Article />} />,
-            { initialEntries: ['/blog/1'] },
+        vi.stubGlobal(
+            'confirm',
+            vi.fn(() => true),
         );
 
-        await user.click(await screen.findByRole('button', { name: /supprimer/i }));
-        expect(apiFetch).toHaveBeenCalledWith('/articles/1/', { method: 'DELETE', auth: true });
+        const user = userEvent.setup();
+        renderWithRoutes(<Route path="/blog/:id" element={<Article />} />, {
+            initialEntries: ['/blog/1'],
+        });
+
+        await user.click(
+            await screen.findByRole('button', { name: /supprimer/i }),
+        );
+        expect(apiFetch).toHaveBeenCalledWith('/articles/1/', {
+            method: 'DELETE',
+            auth: true,
+        });
         expect(mockNavigate).toHaveBeenCalledWith('/blog');
     });
 });

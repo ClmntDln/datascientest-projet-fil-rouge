@@ -28,7 +28,9 @@ describe('ArticleNew', () => {
             { initialEntries: ['/blog/nouveau'] },
         );
 
-        expect(screen.getByRole('heading', { name: /nouvel article/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', { name: /nouvel article/i }),
+        ).toBeInTheDocument();
         expect(screen.getByLabelText('Titre')).toBeInTheDocument();
         expect(screen.getByLabelText('Extrait')).toBeInTheDocument();
         expect(screen.getByLabelText('Contenu')).toBeInTheDocument();
@@ -47,11 +49,14 @@ describe('ArticleNew', () => {
         await user.type(screen.getByLabelText('Contenu'), 'Contenu test');
         await user.click(screen.getByRole('button', { name: /publier/i }));
 
-        expect(apiFetch).toHaveBeenCalledWith('/articles/', expect.objectContaining({
-            method: 'POST',
-            auth: true,
-            isForm: true,
-        }));
+        expect(apiFetch).toHaveBeenCalledWith(
+            '/articles/',
+            expect.objectContaining({
+                method: 'POST',
+                auth: true,
+                isForm: true,
+            }),
+        );
         const call = apiFetch.mock.calls[0][1];
         expect(call.body).toBeInstanceOf(FormData);
         expect(call.body.get('title')).toBe('Titre test');

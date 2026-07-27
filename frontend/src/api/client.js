@@ -25,7 +25,9 @@ export async function fetchSessionUser() {
 
     if (res.status === 401 && sessionStorage.getItem(SESSION_KEY)) {
         if (await refreshAccess()) {
-            res = await fetch(`${API_URL}/auth/me/`, { credentials: 'include' });
+            res = await fetch(`${API_URL}/auth/me/`, {
+                credentials: 'include',
+            });
         }
     }
 
@@ -43,7 +45,10 @@ export async function fetchSessionUser() {
     return user;
 }
 
-export async function apiFetch(path, { method = 'GET', body, auth = false, isForm = false } = {}) {
+export async function apiFetch(
+    path,
+    { method = 'GET', body, auth = false, isForm = false } = {},
+) {
     const headers = {};
     if (!isForm) headers['Content-Type'] = 'application/json';
 
@@ -74,8 +79,12 @@ export async function apiFetch(path, { method = 'GET', body, auth = false, isFor
 
     if (!res.ok) {
         const detail = data?.detail;
-        const message = Array.isArray(detail) ? detail[0] : detail || data?.message || 'Erreur API';
-        const err = new Error(typeof message === 'string' ? message : 'Erreur API');
+        const message = Array.isArray(detail)
+            ? detail[0]
+            : detail || data?.message || 'Erreur API';
+        const err = new Error(
+            typeof message === 'string' ? message : 'Erreur API',
+        );
         err.status = res.status;
         err.data = data;
         throw err;

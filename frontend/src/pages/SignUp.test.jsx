@@ -17,9 +17,11 @@ describe('SignUp', () => {
         useAuth.mockReturnValue({ signup: mockSignup });
     });
 
-    it('affiche le formulaire d\'inscription', () => {
+    it("affiche le formulaire d'inscription", () => {
         renderWithRouter(<SignUp />, { route: '/signup', path: '/signup' });
-        expect(screen.getByRole('heading', { name: /s'enregistrer/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', { name: /s'enregistrer/i }),
+        ).toBeInTheDocument();
         expect(screen.getByLabelText('Prénom')).toBeInTheDocument();
         expect(screen.getByLabelText('Nom')).toBeInTheDocument();
     });
@@ -33,7 +35,9 @@ describe('SignUp', () => {
         await user.type(screen.getByLabelText('Email'), 'jean@weeb.local');
         await user.type(screen.getByLabelText('Mot de passe'), 'password123');
         await user.type(screen.getByLabelText('Confirmation'), 'autrepass');
-        await user.click(screen.getByRole('button', { name: /créer mon compte/i }));
+        await user.click(
+            screen.getByRole('button', { name: /créer mon compte/i }),
+        );
 
         expect(mockSignup).not.toHaveBeenCalled();
         expect(screen.getByText(/ne correspondent pas/i)).toBeInTheDocument();
@@ -49,7 +53,9 @@ describe('SignUp', () => {
         await user.type(screen.getByLabelText('Email'), 'jean@weeb.local');
         await user.type(screen.getByLabelText('Mot de passe'), 'password123');
         await user.type(screen.getByLabelText('Confirmation'), 'password123');
-        await user.click(screen.getByRole('button', { name: /créer mon compte/i }));
+        await user.click(
+            screen.getByRole('button', { name: /créer mon compte/i }),
+        );
 
         expect(mockSignup).toHaveBeenCalledWith({
             first_name: 'Jean',
@@ -57,6 +63,8 @@ describe('SignUp', () => {
             email: 'jean@weeb.local',
             password: 'password123',
         });
-        expect(await screen.findByText(/inscription réussie/i)).toBeInTheDocument();
+        expect(
+            await screen.findByText(/inscription réussie/i),
+        ).toBeInTheDocument();
     });
 });

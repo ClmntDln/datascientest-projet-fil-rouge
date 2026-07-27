@@ -1,4 +1,10 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+    useCallback,
+} from 'react';
 import { apiFetch, fetchSessionUser, markSession } from '../api/client';
 
 const AuthContext = createContext(null);
@@ -56,7 +62,8 @@ export const AuthProvider = ({ children }) => {
 
     const exportAccount = () => apiFetch('/auth/me/export/', { auth: true });
 
-    const deleteAccount = () => apiFetch('/auth/me/delete/', { method: 'DELETE', auth: true });
+    const deleteAccount = () =>
+        apiFetch('/auth/me/delete/', { method: 'DELETE', auth: true });
 
     const requestPasswordReset = async (email) => {
         return apiFetch('/auth/reset-password/request/', {
@@ -73,18 +80,20 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{
-            user,
-            loading,
-            login,
-            signup,
-            logout,
-            exportAccount,
-            deleteAccount,
-            requestPasswordReset,
-            confirmPasswordReset,
-            refresh: fetchMe,
-        }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                loading,
+                login,
+                signup,
+                logout,
+                exportAccount,
+                deleteAccount,
+                requestPasswordReset,
+                confirmPasswordReset,
+                refresh: fetchMe,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );

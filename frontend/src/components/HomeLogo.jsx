@@ -17,12 +17,12 @@ const logos = [
 ];
 
 const HomeLogo = () => (
-    <section className='home-logo-container container-narrow'>
-        <h2 className='home-logo-title'>Ils nous font confiance</h2>
-        <div className='home-logo-marquee'>
-            <div className='home-logo-track'>
+    <section className="home-logo-container container-narrow">
+        <h2 className="home-logo-title">Ils nous font confiance</h2>
+        <div className="home-logo-marquee">
+            <div className="home-logo-track">
                 {[...logos, ...logos].map((logo, i) => (
-                    <div key={`${logo.id}-${i}`} className='home-logo-item'>
+                    <div key={`${logo.id}-${i}`} className="home-logo-item">
                         <img src={logo.image} alt={logo.name} loading="lazy" />
                     </div>
                 ))}

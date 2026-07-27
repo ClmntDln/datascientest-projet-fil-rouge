@@ -21,7 +21,8 @@ const Login = () => {
         }
     }, []);
 
-    const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+    const onChange = (e) =>
+        setForm({ ...form, [e.target.name]: e.target.value });
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -39,9 +40,9 @@ const Login = () => {
         } catch (err) {
             const detail = err.data?.detail;
             setError(
-                (Array.isArray(detail) ? detail[0] : detail)
-                || err.message
-                || 'Identifiants invalides ou compte non activé.',
+                (Array.isArray(detail) ? detail[0] : detail) ||
+                    err.message ||
+                    'Identifiants invalides ou compte non activé.',
             );
         } finally {
             setLoading(false);
@@ -49,11 +50,14 @@ const Login = () => {
     };
 
     return (
-        <section className='login-container container-narrow'>
-            <h1 className='login-title'>Connexion</h1>
-            <p className='login-description'>Connectez-vous à votre compte pour accéder à toutes les fonctionnalités.</p>
+        <section className="login-container container-narrow">
+            <h1 className="login-title">Connexion</h1>
+            <p className="login-description">
+                Connectez-vous à votre compte pour accéder à toutes les
+                fonctionnalités.
+            </p>
 
-            <form className='login-form' onSubmit={onSubmit}>
+            <form className="login-form" onSubmit={onSubmit}>
                 <FormMessage message={error} />
 
                 <FormField
@@ -76,25 +80,34 @@ const Login = () => {
                     required
                 />
 
-                <div className='login-form-options'>
-                    <label className='login-checkbox-label'>
+                <div className="login-form-options">
+                    <label className="login-checkbox-label">
                         <input
                             type="checkbox"
-                            className='login-checkbox'
+                            className="login-checkbox"
                             checked={rememberMe}
                             onChange={(e) => setRememberMe(e.target.checked)}
                         />
                         Se souvenir de moi
                     </label>
-                    <Link to="/reset-password" className='login-forgot-link'>Mot de passe oublié ?</Link>
+                    <Link to="/reset-password" className="login-forgot-link">
+                        Mot de passe oublié ?
+                    </Link>
                 </div>
 
-                <button type="submit" className='login-button' disabled={loading}>
+                <button
+                    type="submit"
+                    className="login-button"
+                    disabled={loading}
+                >
                     {loading ? 'Connexion…' : 'Se connecter'}
                 </button>
 
-                <p className='login-signup'>
-                    Pas encore de compte ? <Link to="/signup" className='login-signup-link'>Créer un compte</Link>
+                <p className="login-signup">
+                    Pas encore de compte ?{' '}
+                    <Link to="/signup" className="login-signup-link">
+                        Créer un compte
+                    </Link>
                 </p>
             </form>
         </section>

@@ -11,7 +11,8 @@ const Contact = () => {
     const [status, setStatus] = useState({ type: '', msg: '' });
     const [loading, setLoading] = useState(false);
 
-    const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+    const onChange = (e) =>
+        setForm({ ...form, [e.target.name]: e.target.value });
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -29,22 +30,32 @@ const Contact = () => {
                 method: 'POST',
                 body: { ...form, consent_given: true },
             });
-            setStatus({ type: 'success', msg: 'Votre message a bien été envoyé. Merci !' });
+            setStatus({
+                type: 'success',
+                msg: 'Votre message a bien été envoyé. Merci !',
+            });
             setForm(initial);
             setConsent(false);
         } catch (err) {
-            setStatus({ type: 'error', msg: err.message || 'Une erreur est survenue.' });
+            setStatus({
+                type: 'error',
+                msg: err.message || 'Une erreur est survenue.',
+            });
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <section className='contact-container container-narrow'>
-            <h1 className='contact-title'>Votre avis compte !</h1>
-            <p className='contact-description'>Votre retour est essentiel pour nous améliorer ! Partagez votre expérience, dites-nous ce que vous aimez et ce que nous pourrions améliorer.</p>
+        <section className="contact-container container-narrow">
+            <h1 className="contact-title">Votre avis compte !</h1>
+            <p className="contact-description">
+                Votre retour est essentiel pour nous améliorer ! Partagez votre
+                expérience, dites-nous ce que vous aimez et ce que nous
+                pourrions améliorer.
+            </p>
 
-            <form className='contact-form' onSubmit={onSubmit}>
+            <form className="contact-form" onSubmit={onSubmit}>
                 <FormMessage type={status.type} message={status.msg} />
 
                 <FormField
@@ -87,17 +98,21 @@ const Contact = () => {
                     required
                 />
 
-                <label className='login-checkbox-label'>
+                <label className="login-checkbox-label">
                     <input
                         type="checkbox"
-                        className='login-checkbox'
+                        className="login-checkbox"
                         checked={consent}
                         onChange={(e) => setConsent(e.target.checked)}
                     />
                     J'accepte le traitement de mes données personnelles.
                 </label>
 
-                <button type="submit" className='contact-button' disabled={loading}>
+                <button
+                    type="submit"
+                    className="contact-button"
+                    disabled={loading}
+                >
                     {loading ? 'Envoi…' : 'Envoyer le message'}
                 </button>
             </form>

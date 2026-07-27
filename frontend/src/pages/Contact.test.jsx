@@ -16,7 +16,9 @@ describe('Contact', () => {
 
     it('affiche le formulaire de contact', () => {
         renderWithRouter(<Contact />, { route: '/contact', path: '/contact' });
-        expect(screen.getByRole('heading', { name: /votre avis compte/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', { name: /votre avis compte/i }),
+        ).toBeInTheDocument();
         expect(screen.getByLabelText('Nom')).toBeInTheDocument();
         expect(screen.getByLabelText('Email')).toBeInTheDocument();
         expect(screen.getByLabelText('Sujet')).toBeInTheDocument();
@@ -63,7 +65,7 @@ describe('Contact', () => {
         expect(await screen.findByText(/bien été envoyé/i)).toBeInTheDocument();
     });
 
-    it('affiche une erreur si l\'API échoue', async () => {
+    it("affiche une erreur si l'API échoue", async () => {
         apiFetch.mockRejectedValueOnce(new Error('Erreur serveur'));
         const user = userEvent.setup();
         renderWithRouter(<Contact />, { route: '/contact', path: '/contact' });

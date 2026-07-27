@@ -14,8 +14,14 @@ describe('Privacy', () => {
             </>,
             { initialEntries: ['/confidentialite'] },
         );
-        expect(screen.getByRole('heading', { name: /politique de confidentialité/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', {
+                name: /politique de confidentialité/i,
+            }),
+        ).toBeInTheDocument();
         expect(screen.getByText(/RGPD/i)).toBeInTheDocument();
-        expect(screen.getByRole('link', { name: /mon compte/i })).toHaveAttribute('href', '/compte');
+        expect(
+            screen.getByRole('link', { name: /mon compte/i }),
+        ).toHaveAttribute('href', '/compte');
     });
 });

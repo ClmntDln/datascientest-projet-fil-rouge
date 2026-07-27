@@ -20,7 +20,14 @@ describe('ProtectedRoute', () => {
         useAuth.mockReturnValue({ user: null, loading: true });
         renderWithRoutes(
             <>
-                <Route path="/prive" element={<ProtectedRoute><ProtectedContent /></ProtectedRoute>} />
+                <Route
+                    path="/prive"
+                    element={
+                        <ProtectedRoute>
+                            <ProtectedContent />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route path="/login" element={<div>Page login</div>} />
             </>,
             { initialEntries: ['/prive'] },
@@ -32,7 +39,14 @@ describe('ProtectedRoute', () => {
         useAuth.mockReturnValue({ user: null, loading: false });
         renderWithRoutes(
             <>
-                <Route path="/prive" element={<ProtectedRoute><ProtectedContent /></ProtectedRoute>} />
+                <Route
+                    path="/prive"
+                    element={
+                        <ProtectedRoute>
+                            <ProtectedContent />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route path="/login" element={<div>Page login</div>} />
             </>,
             { initialEntries: ['/prive'] },
@@ -42,37 +56,77 @@ describe('ProtectedRoute', () => {
 
     it('affiche le contenu pour un utilisateur actif', () => {
         useAuth.mockReturnValue({
-            user: { id: 1, email: 'user@weeb.local', is_active: true, is_staff: false },
+            user: {
+                id: 1,
+                email: 'user@weeb.local',
+                is_active: true,
+                is_staff: false,
+            },
             loading: false,
         });
         renderWithRoutes(
-            <Route path="/prive" element={<ProtectedRoute><ProtectedContent /></ProtectedRoute>} />,
+            <Route
+                path="/prive"
+                element={
+                    <ProtectedRoute>
+                        <ProtectedContent />
+                    </ProtectedRoute>
+                }
+            />,
             { initialEntries: ['/prive'] },
         );
         expect(screen.getByText('Contenu protégé')).toBeInTheDocument();
     });
 
-    it('bloque l\'accès staff aux non-administrateurs', () => {
+    it("bloque l'accès staff aux non-administrateurs", () => {
         useAuth.mockReturnValue({
-            user: { id: 1, email: 'user@weeb.local', is_active: true, is_staff: false },
+            user: {
+                id: 1,
+                email: 'user@weeb.local',
+                is_active: true,
+                is_staff: false,
+            },
             loading: false,
         });
         renderWithRoutes(
-            <Route path="/admin" element={<ProtectedRoute staffOnly><ProtectedContent /></ProtectedRoute>} />,
+            <Route
+                path="/admin"
+                element={
+                    <ProtectedRoute staffOnly>
+                        <ProtectedContent />
+                    </ProtectedRoute>
+                }
+            />,
             { initialEntries: ['/admin'] },
         );
-        expect(screen.getByRole('heading', { name: /accès réservé/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', { name: /accès réservé/i }),
+        ).toBeInTheDocument();
     });
 
-    it('affiche un message si le compte n\'est pas activé', () => {
+    it("affiche un message si le compte n'est pas activé", () => {
         useAuth.mockReturnValue({
-            user: { id: 1, email: 'pending@weeb.local', is_active: false, is_staff: false },
+            user: {
+                id: 1,
+                email: 'pending@weeb.local',
+                is_active: false,
+                is_staff: false,
+            },
             loading: false,
         });
         renderWithRoutes(
-            <Route path="/prive" element={<ProtectedRoute><ProtectedContent /></ProtectedRoute>} />,
+            <Route
+                path="/prive"
+                element={
+                    <ProtectedRoute>
+                        <ProtectedContent />
+                    </ProtectedRoute>
+                }
+            />,
             { initialEntries: ['/prive'] },
         );
-        expect(screen.getByRole('heading', { name: /attente de validation/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', { name: /attente de validation/i }),
+        ).toBeInTheDocument();
     });
 });

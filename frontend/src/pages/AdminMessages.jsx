@@ -8,7 +8,12 @@ import AdminPageHeader from '../components/AdminPageHeader';
 import FormMessage from '../components/FormMessage';
 
 const AdminMessages = () => {
-    const { data: items, loading, error, reload } = useAsyncData(
+    const {
+        data: items,
+        loading,
+        error,
+        reload,
+    } = useAsyncData(
         async () => {
             const data = await apiFetch('/contacts/', { auth: true });
             return Array.isArray(data) ? data : data.results || [];
@@ -22,10 +27,13 @@ const AdminMessages = () => {
         [],
     );
 
-    const { query, setQuery, filtered } = useSearchFilter(items ?? [], getSearchText);
+    const { query, setQuery, filtered } = useSearchFilter(
+        items ?? [],
+        getSearchText,
+    );
 
     return (
-        <section className='admin-container container-large'>
+        <section className="admin-container container-large">
             <AdminSubnav />
             <AdminPageHeader
                 title="Messages"
@@ -35,13 +43,13 @@ const AdminMessages = () => {
                 loading={loading}
             />
 
-            {loading && <p className='admin-empty'>Chargement…</p>}
+            {loading && <p className="admin-empty">Chargement…</p>}
             <FormMessage message={error} />
 
             {!loading && items?.length > 0 && (
                 <input
                     type="search"
-                    className='admin-search'
+                    className="admin-search"
                     placeholder="Rechercher par nom, email ou sujet…"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
@@ -49,24 +57,33 @@ const AdminMessages = () => {
             )}
 
             {!loading && filtered.length > 0 && (
-                <ul className='admin-message-list'>
+                <ul className="admin-message-list">
                     {filtered.map((m) => (
-                        <li key={m.id} className='admin-message-card'>
-                            <div className='admin-message-meta'>
-                                <span className='admin-message-subject'>{m.subject}</span>
-                                <span className='admin-table-muted'>{formatDate(m.created_at, true)}</span>
+                        <li key={m.id} className="admin-message-card">
+                            <div className="admin-message-meta">
+                                <span className="admin-message-subject">
+                                    {m.subject}
+                                </span>
+                                <span className="admin-table-muted">
+                                    {formatDate(m.created_at, true)}
+                                </span>
                             </div>
-                            <p className='admin-message-from'>
-                                {m.name} — <a href={`mailto:${m.email}`}>{m.email}</a>
+                            <p className="admin-message-from">
+                                {m.name} —{' '}
+                                <a href={`mailto:${m.email}`}>{m.email}</a>
                             </p>
-                            <p className='admin-message-body'>{m.message}</p>
+                            <p className="admin-message-body">{m.message}</p>
                         </li>
                     ))}
                 </ul>
             )}
 
             {!loading && !error && filtered.length === 0 && (
-                <p className='admin-empty'>{query ? 'Aucun résultat.' : 'Aucun message pour le moment.'}</p>
+                <p className="admin-empty">
+                    {query
+                        ? 'Aucun résultat.'
+                        : 'Aucun message pour le moment.'}
+                </p>
             )}
         </section>
     );

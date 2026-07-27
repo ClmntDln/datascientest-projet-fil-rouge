@@ -39,26 +39,34 @@ describe('Account', () => {
     });
 
     it('affiche les informations du compte', () => {
-        renderWithRoutes(
-            <Route path="/compte" element={<Account />} />,
-            { initialEntries: ['/compte'] },
-        );
-        expect(screen.getByRole('heading', { name: /mon compte/i })).toBeInTheDocument();
+        renderWithRoutes(<Route path="/compte" element={<Account />} />, {
+            initialEntries: ['/compte'],
+        });
+        expect(
+            screen.getByRole('heading', { name: /mon compte/i }),
+        ).toBeInTheDocument();
         expect(screen.getByText(/jean@weeb.local/i)).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /exporter mes données/i })).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /exporter mes données/i }),
+        ).toBeInTheDocument();
     });
 
     it('exporte les données personnelles', async () => {
-        mockExport.mockResolvedValueOnce({ profile: { email: 'jean@weeb.local' } });
+        mockExport.mockResolvedValueOnce({
+            profile: { email: 'jean@weeb.local' },
+        });
         const user = userEvent.setup();
-        renderWithRoutes(
-            <Route path="/compte" element={<Account />} />,
-            { initialEntries: ['/compte'] },
-        );
+        renderWithRoutes(<Route path="/compte" element={<Account />} />, {
+            initialEntries: ['/compte'],
+        });
 
-        await user.click(screen.getByRole('button', { name: /exporter mes données/i }));
+        await user.click(
+            screen.getByRole('button', { name: /exporter mes données/i }),
+        );
         expect(mockExport).toHaveBeenCalled();
-        expect(await screen.findByText(/ont été exportées/i)).toBeInTheDocument();
+        expect(
+            await screen.findByText(/ont été exportées/i),
+        ).toBeInTheDocument();
     });
 
     it('masque la suppression pour les comptes staff', () => {
@@ -74,10 +82,11 @@ describe('Account', () => {
             deleteAccount: mockDelete,
             logout: mockLogout,
         });
-        renderWithRoutes(
-            <Route path="/compte" element={<Account />} />,
-            { initialEntries: ['/compte'] },
-        );
-        expect(screen.queryByRole('button', { name: /supprimer mon compte/i })).not.toBeInTheDocument();
+        renderWithRoutes(<Route path="/compte" element={<Account />} />, {
+            initialEntries: ['/compte'],
+        });
+        expect(
+            screen.queryByRole('button', { name: /supprimer mon compte/i }),
+        ).not.toBeInTheDocument();
     });
 });

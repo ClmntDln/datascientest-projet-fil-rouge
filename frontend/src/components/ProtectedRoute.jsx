@@ -1,25 +1,38 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, requireActive = true, staffOnly = false }) => {
+const ProtectedRoute = ({
+    children,
+    requireActive = true,
+    staffOnly = false,
+}) => {
     const { user, loading } = useAuth();
     const location = useLocation();
 
-    if (loading) return <p className='page-loading container-narrow'>Chargement…</p>;
-    if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    if (loading)
+        return <p className="page-loading container-narrow">Chargement…</p>;
+    if (!user)
+        return (
+            <Navigate to="/login" replace state={{ from: location.pathname }} />
+        );
     if (staffOnly && !user.is_staff) {
         return (
-            <section className='container-narrow page-message'>
-                <h1 className='page-message-title'>Accès réservé</h1>
+            <section className="container-narrow page-message">
+                <h1 className="page-message-title">Accès réservé</h1>
                 <p>Cette page est réservée aux administrateurs du site.</p>
             </section>
         );
     }
     if (requireActive && !user.is_active) {
         return (
-            <section className='container-narrow page-message'>
-                <h1 className='page-message-title'>Compte en attente de validation</h1>
-                <p>Votre compte a bien été créé. Un administrateur doit l'activer avant que vous puissiez publier un article.</p>
+            <section className="container-narrow page-message">
+                <h1 className="page-message-title">
+                    Compte en attente de validation
+                </h1>
+                <p>
+                    Votre compte a bien été créé. Un administrateur doit
+                    l'activer avant que vous puissiez publier un article.
+                </p>
             </section>
         );
     }

@@ -4,7 +4,13 @@ import { useAuth } from '../context/AuthContext';
 import FormField from '../components/FormField';
 import FormMessage from '../components/FormMessage';
 
-const initial = { first_name: '', last_name: '', email: '', password: '', password2: '' };
+const initial = {
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    password2: '',
+};
 
 const SignUp = () => {
     const { signup } = useAuth();
@@ -13,7 +19,8 @@ const SignUp = () => {
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+    const onChange = (e) =>
+        setForm({ ...form, [e.target.name]: e.target.value });
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -38,7 +45,11 @@ const SignUp = () => {
             setForm(initial);
         } catch (err) {
             const d = err.data;
-            const msg = d?.email?.[0] || d?.password?.[0] || d?.detail || 'Impossible de créer le compte.';
+            const msg =
+                d?.email?.[0] ||
+                d?.password?.[0] ||
+                d?.detail ||
+                'Impossible de créer le compte.';
             setError(msg);
         } finally {
             setLoading(false);
@@ -47,23 +58,32 @@ const SignUp = () => {
 
     if (success) {
         return (
-            <section className='login-container container-narrow page-message'>
-                <h1 className='login-title'>Inscription réussie</h1>
-                <p>Votre compte a été créé. Un administrateur doit le valider avant que vous puissiez publier des articles.</p>
-                <p><Link to="/login" className='login-signup-link'>Retour à la connexion</Link></p>
+            <section className="login-container container-narrow page-message">
+                <h1 className="login-title">Inscription réussie</h1>
+                <p>
+                    Votre compte a été créé. Un administrateur doit le valider
+                    avant que vous puissiez publier des articles.
+                </p>
+                <p>
+                    <Link to="/login" className="login-signup-link">
+                        Retour à la connexion
+                    </Link>
+                </p>
             </section>
         );
     }
 
     return (
-        <section className='login-container container-narrow'>
-            <h1 className='login-title'>S'enregistrer</h1>
-            <p className='login-description'>Créez votre compte pour rejoindre la communauté Weeb.</p>
+        <section className="login-container container-narrow">
+            <h1 className="login-title">S'enregistrer</h1>
+            <p className="login-description">
+                Créez votre compte pour rejoindre la communauté Weeb.
+            </p>
 
-            <form className='login-form' onSubmit={onSubmit}>
+            <form className="login-form" onSubmit={onSubmit}>
                 <FormMessage message={error} />
 
-                <div className='form-row'>
+                <div className="form-row">
                     <FormField
                         id="first_name"
                         label="Prénom"
@@ -112,12 +132,19 @@ const SignUp = () => {
                     required
                 />
 
-                <button type="submit" className='login-button' disabled={loading}>
+                <button
+                    type="submit"
+                    className="login-button"
+                    disabled={loading}
+                >
                     {loading ? 'Création…' : 'Créer mon compte'}
                 </button>
 
-                <p className='login-signup'>
-                    Déjà inscrit ? <Link to="/login" className='login-signup-link'>Se connecter</Link>
+                <p className="login-signup">
+                    Déjà inscrit ?{' '}
+                    <Link to="/login" className="login-signup-link">
+                        Se connecter
+                    </Link>
                 </p>
             </form>
         </section>

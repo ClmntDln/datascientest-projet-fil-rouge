@@ -45,7 +45,10 @@ describe('AdminUsers', () => {
     });
 
     it('affiche la liste des utilisateurs', async () => {
-        renderWithRouter(<AdminUsers />, { route: '/admin/utilisateurs', path: '/admin/utilisateurs' });
+        renderWithRouter(<AdminUsers />, {
+            route: '/admin/utilisateurs',
+            path: '/admin/utilisateurs',
+        });
 
         expect(await screen.findByText('jean@weeb.local')).toBeInTheDocument();
         expect(screen.getByText('marie@weeb.local')).toBeInTheDocument();
@@ -53,13 +56,18 @@ describe('AdminUsers', () => {
 
     it('filtre les utilisateurs par recherche', async () => {
         const user = userEvent.setup();
-        renderWithRouter(<AdminUsers />, { route: '/admin/utilisateurs', path: '/admin/utilisateurs' });
+        renderWithRouter(<AdminUsers />, {
+            route: '/admin/utilisateurs',
+            path: '/admin/utilisateurs',
+        });
 
         await screen.findByText('jean@weeb.local');
         await user.type(screen.getByPlaceholderText(/rechercher/i), 'marie');
 
         await waitFor(() => {
-            expect(screen.queryByText('jean@weeb.local')).not.toBeInTheDocument();
+            expect(
+                screen.queryByText('jean@weeb.local'),
+            ).not.toBeInTheDocument();
             expect(screen.getByText('marie@weeb.local')).toBeInTheDocument();
         });
     });

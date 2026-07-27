@@ -40,7 +40,8 @@ const ArticleNew = () => {
         };
     }, [blobPreview]);
 
-    const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+    const onChange = (e) =>
+        setForm({ ...form, [e.target.name]: e.target.value });
 
     const onImageChange = (e) => {
         const file = e.target.files?.[0] ?? null;
@@ -65,10 +66,20 @@ const ArticleNew = () => {
             if (imageFile) fd.append('image', imageFile);
 
             if (editId) {
-                await apiFetch(`/articles/${editId}/`, { method: 'PATCH', body: fd, auth: true, isForm: true });
+                await apiFetch(`/articles/${editId}/`, {
+                    method: 'PATCH',
+                    body: fd,
+                    auth: true,
+                    isForm: true,
+                });
                 navigate(`/blog/${editId}`);
             } else {
-                const created = await apiFetch('/articles/', { method: 'POST', body: fd, auth: true, isForm: true });
+                const created = await apiFetch('/articles/', {
+                    method: 'POST',
+                    body: fd,
+                    auth: true,
+                    isForm: true,
+                });
                 navigate(`/blog/${created.id}`);
             }
         } catch (err) {
@@ -79,11 +90,15 @@ const ArticleNew = () => {
     };
 
     return (
-        <section className='container-narrow article-form-container'>
-            <h1 className='contact-title'>{editId ? "Modifier l'article" : 'Nouvel article'}</h1>
-            <p className='contact-description'>Partagez vos découvertes avec la communauté Weeb.</p>
+        <section className="container-narrow article-form-container">
+            <h1 className="contact-title">
+                {editId ? "Modifier l'article" : 'Nouvel article'}
+            </h1>
+            <p className="contact-description">
+                Partagez vos découvertes avec la communauté Weeb.
+            </p>
 
-            <form className='contact-form' onSubmit={onSubmit}>
+            <form className="contact-form" onSubmit={onSubmit}>
                 <FormMessage message={loadError || submitError} />
 
                 <FormField
@@ -114,7 +129,11 @@ const ArticleNew = () => {
                     onChange={onImageChange}
                 >
                     {imagePreview && (
-                        <img src={imagePreview} alt="Aperçu" className='article-form-preview' />
+                        <img
+                            src={imagePreview}
+                            alt="Aperçu"
+                            className="article-form-preview"
+                        />
                     )}
                 </FormField>
 
@@ -129,8 +148,16 @@ const ArticleNew = () => {
                     required
                 />
 
-                <button type="submit" className='contact-button' disabled={loading}>
-                    {loading ? 'Publication…' : editId ? 'Enregistrer' : 'Publier'}
+                <button
+                    type="submit"
+                    className="contact-button"
+                    disabled={loading}
+                >
+                    {loading
+                        ? 'Publication…'
+                        : editId
+                          ? 'Enregistrer'
+                          : 'Publier'}
                 </button>
             </form>
         </section>

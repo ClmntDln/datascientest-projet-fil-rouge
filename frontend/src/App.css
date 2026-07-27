@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-    --primary-color: #0F172A;
+    --primary-color: #0f172a;
     --secondary-color: #ffffff;
-    --tertiary-color: #94A3B8;
-    --quaternary-color: #EFEFEF;
+    --tertiary-color: #94a3b8;
+    --quaternary-color: #efefef;
     --quinary-color: #c084fc;
     --surface-color: #1e293b;
     --danger-color: #ef4444;
@@ -17,7 +17,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     min-height: 100%;
 }
 
@@ -56,9 +57,15 @@ button {
     padding: 24px 32px;
 }
 
-.container { max-width: 1000px; }
-.container-large { max-width: 1200px; }
-.container-narrow { max-width: 850px; }
+.container {
+    max-width: 1000px;
+}
+.container-large {
+    max-width: 1200px;
+}
+.container-narrow {
+    max-width: 850px;
+}
 
 /* Navigation */
 .navigation-wrapper {
@@ -264,7 +271,9 @@ footer {
 
 .footer-social-links a {
     color: var(--primary-color);
-    transition: color 0.25s ease, transform 0.25s ease;
+    transition:
+        color 0.25s ease,
+        transform 0.25s ease;
     display: inline-flex;
 }
 
@@ -351,7 +360,13 @@ footer {
 .home-logo-marquee {
     overflow: hidden;
     width: 100%;
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 10%,
+        black 90%,
+        transparent
+    );
 }
 
 .home-logo-track {
@@ -376,8 +391,12 @@ footer {
 }
 
 @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-50%);
+    }
 }
 
 /* Home Section */
@@ -393,8 +412,12 @@ footer {
     flex: 1;
 }
 
-.position-left { flex-direction: row; }
-.position-right { flex-direction: row-reverse; }
+.position-left {
+    flex-direction: row;
+}
+.position-right {
+    flex-direction: row-reverse;
+}
 
 .home-section-image {
     flex: 1;
@@ -755,7 +778,9 @@ footer {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.25s ease, border-color 0.25s ease;
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease;
 }
 
 .blog-card:hover {
@@ -946,7 +971,9 @@ footer {
     font-weight: 600;
     color: var(--tertiary-color);
     border: 1px solid transparent;
-    transition: color 0.2s ease, border-color 0.2s ease;
+    transition:
+        color 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .admin-subnav-link:hover {
@@ -992,7 +1019,9 @@ footer {
     border: 1px solid rgba(255, 255, 255, 0.12);
     cursor: pointer;
     font-weight: 600;
-    transition: border-color 0.25s ease, color 0.25s ease;
+    transition:
+        border-color 0.25s ease,
+        color 0.25s ease;
 }
 
 .admin-refresh:hover:not(:disabled) {
@@ -1074,7 +1103,9 @@ footer {
     font-weight: 600;
     cursor: pointer;
     border: 2px solid;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease;
 }
 
 .admin-toggle:disabled {
@@ -1477,4 +1508,3 @@ footer {
         font-size: 24px;
     }
 }
-

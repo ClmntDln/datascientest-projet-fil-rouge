@@ -21,13 +21,15 @@ describe('Blog', () => {
 
     it('affiche les articles', async () => {
         apiFetch.mockResolvedValueOnce({
-            results: [{
-                id: 1,
-                title: 'Premier article',
-                excerpt: 'Extrait',
-                author_name: 'Jean',
-                created_at: '2026-01-15T10:00:00Z',
-            }],
+            results: [
+                {
+                    id: 1,
+                    title: 'Premier article',
+                    excerpt: 'Extrait',
+                    author_name: 'Jean',
+                    created_at: '2026-01-15T10:00:00Z',
+                },
+            ],
         });
         renderWithRouter(<Blog />, { route: '/blog', path: '/blog' });
 
@@ -48,7 +50,9 @@ describe('Blog', () => {
         renderWithRouter(<Blog />, { route: '/blog', path: '/blog' });
 
         await waitFor(() => {
-            expect(screen.getByRole('link', { name: /écrire un article/i })).toBeInTheDocument();
+            expect(
+                screen.getByRole('link', { name: /écrire un article/i }),
+            ).toBeInTheDocument();
         });
     });
 });
