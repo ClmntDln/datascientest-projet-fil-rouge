@@ -74,3 +74,67 @@ def test_inactive_user_cannot_create_article(api_client, inactive_user):
         format="json",
     )
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_article_detail_public(api_client, user):
+    article = Article.objects.create(
+        title="Détail",
+        excerpt="Extrait",
+        content="Contenu",
+        author=user,
+    )
+    response = api_client.get(f"/api/articles/{article.id}/")
+    assert response.status_code == 200
+    assert response.data["title"] == "Détail"
+
+
+@pytest.mark.django_db
+def test_article_update_by_owner_succeeds(auth_client, user):
+    article = Article.objects.create(
+        title="Mon article",
+        excerpt="Extrait",
+        content="Contenu",
+        author=user,
+    )
+    response = auth_client.patch(
+        f"/api/articles/{article.id}/",
+        {"title": "Titre modifié"},
+        format="json",
+    )
+    assert response.status_code == 200
+    article.refresh_from_db()
+    assert article.title == "Titre modifié"
+
+
+@pytest.mark.django_db
+def test_article_delete_by_owner_succeeds(auth_client, user):
+    article = Article.objects.create(
+        title="À supprimer",
+        excerpt="Extrait",
+        content="Contenu",
+        author=user,
+    )
+    response = auth_client.delete(f"/api/articles/{article.id}/")
+    assert response.status_code == 204
+    assert not Article.objects.filter(pk=article.id).exists()
+
+
+@pytest.mark.django_db
+def test_article_delete_by_non_owner_forbidden(auth_client, user):
+    other = user.__class__.objects.create_user(
+        email="autre-auteur@weeb.local",
+        password="autrepass123",
+        first_name="Autre",
+        last_name="Auteur",
+        is_active=True,
+    )
+    article = Article.objects.create(
+        title="Article d'un autre",
+        excerpt="Extrait",
+        content="Contenu",
+        author=other,
+    )
+    response = auth_client.delete(f"/api/articles/{article.id}/")
+    assert response.status_code == 403
+    assert Article.objects.filter(pk=article.id).exists()

@@ -71,4 +71,48 @@ describe('AdminUsers', () => {
             expect(screen.getByText('marie@weeb.local')).toBeInTheDocument();
         });
     });
+
+    it('active un utilisateur en attente', async () => {
+        apiFetch.mockResolvedValueOnce(users);
+        apiFetch.mockResolvedValueOnce({ ...users[1], is_active: true });
+        const user = userEvent.setup();
+        renderWithRouter(<AdminUsers />, {
+            route: '/admin/utilisateurs',
+            path: '/admin/utilisateurs',
+        });
+
+        await screen.findByText('marie@weeb.local');
+        await user.click(screen.getByRole('button', { name: 'Activer' }));
+
+        expect(apiFetch).toHaveBeenLastCalledWith(
+            '/auth/admin/users/2/',
+            expect.objectContaining({
+                method: 'PATCH',
+                body: { is_active: true },
+                auth: true,
+            }),
+        );
+        await waitFor(() => {
+            expect(
+                screen.queryByRole('button', { name: 'Activer' }),
+            ).not.toBeInTheDocument();
+        });
+    });
+
+    it("affiche une erreur si l'action échoue", async () => {
+        apiFetch.mockResolvedValueOnce(users);
+        apiFetch.mockRejectedValueOnce(new Error('Action impossible.'));
+        const user = userEvent.setup();
+        renderWithRouter(<AdminUsers />, {
+            route: '/admin/utilisateurs',
+            path: '/admin/utilisateurs',
+        });
+
+        await screen.findByText('marie@weeb.local');
+        await user.click(screen.getByRole('button', { name: 'Activer' }));
+
+        expect(
+            await screen.findByText('Action impossible.'),
+        ).toBeInTheDocument();
+    });
 });

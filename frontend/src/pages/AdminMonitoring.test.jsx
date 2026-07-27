@@ -47,4 +47,42 @@ describe('AdminMonitoring', () => {
             expect(screen.getByText('Opérationnel')).toBeInTheDocument();
         });
     });
+
+    it('affiche un état dégradé si la base de données est en erreur', async () => {
+        apiFetch.mockImplementation((path) => {
+            if (path === '/monitoring/metrics/') {
+                return Promise.resolve({
+                    total_requests: 10,
+                    error_count: 5,
+                    error_rate: 0.5,
+                    avg_latency_ms: 50,
+                    p95_latency_ms: 90,
+                    status_codes: { 500: 5 },
+                    alerts: {
+                        error_rate_threshold: 0.1,
+                        latency_p95_threshold_ms: 1000,
+                    },
+                });
+            }
+            return Promise.resolve({ status: 'degraded', database: 'error' });
+        });
+
+        renderWithRouter(<AdminMonitoring />, {
+            route: '/admin/monitoring',
+            path: '/admin/monitoring',
+        });
+
+        expect(await screen.findByText('Dégradé')).toBeInTheDocument();
+        expect(screen.getByText(/base : error/i)).toBeInTheDocument();
+    });
+
+    it('affiche une erreur si le chargement échoue', async () => {
+        apiFetch.mockRejectedValue(new Error('Erreur serveur'));
+        renderWithRouter(<AdminMonitoring />, {
+            route: '/admin/monitoring',
+            path: '/admin/monitoring',
+        });
+
+        expect(await screen.findByText('Erreur serveur')).toBeInTheDocument();
+    });
 });

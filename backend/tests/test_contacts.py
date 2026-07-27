@@ -36,6 +36,23 @@ def test_contact_create_with_consent(api_client):
 
 
 @pytest.mark.django_db
+def test_contact_invalid_email_rejected(api_client):
+    response = api_client.post(
+        "/api/contacts/",
+        {
+            "name": "Visiteur",
+            "email": "pas-un-email",
+            "subject": "Question",
+            "message": "Bonjour",
+            "consent_given": True,
+        },
+        format="json",
+    )
+    assert response.status_code == 400
+    assert "email" in response.data
+
+
+@pytest.mark.django_db
 def test_contact_list_requires_staff(api_client, auth_client, staff_client):
     api_client.post(
         "/api/contacts/",

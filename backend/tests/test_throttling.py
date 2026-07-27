@@ -28,3 +28,22 @@ def test_contact_throttling():
         format="json",
     )
     assert blocked.status_code == 429
+
+
+@pytest.mark.django_db
+def test_login_throttling(user):
+    cache.clear()
+    client = APIClient()
+    for _ in range(10):
+        client.post(
+            "/api/auth/login/",
+            {"email": user.email, "password": "wrongpassword"},
+            format="json",
+        )
+
+    blocked = client.post(
+        "/api/auth/login/",
+        {"email": user.email, "password": "wrongpassword"},
+        format="json",
+    )
+    assert blocked.status_code == 429

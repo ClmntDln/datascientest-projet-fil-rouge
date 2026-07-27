@@ -48,3 +48,24 @@ def test_me_delete_staff_forbidden(staff_user, staff_client):
     response = staff_client.delete("/api/auth/me/delete/")
     assert response.status_code == 403
     assert User.objects.filter(pk=staff_user.pk).exists()
+
+
+@pytest.mark.django_db
+def test_me_export_without_related_data(auth_client):
+    response = auth_client.get("/api/auth/me/export/")
+    assert response.status_code == 200
+    assert response.data["articles"] == []
+    assert response.data["contact_messages"] == []
+
+
+@pytest.mark.django_db
+def test_me_delete_cascades_articles(auth_client, user):
+    Article.objects.create(
+        title="Article perso",
+        excerpt="Extrait",
+        content="Contenu",
+        author=user,
+    )
+    response = auth_client.delete("/api/auth/me/delete/")
+    assert response.status_code == 204
+    assert Article.objects.count() == 0

@@ -58,3 +58,25 @@ def test_alerts_trigger_on_high_error_rate(settings, caplog):
     with caplog.at_level("WARNING", logger="monitoring"):
         check_alerts()
     assert any("error_rate" in record.message for record in caplog.records)
+
+
+@pytest.mark.django_db
+def test_alerts_trigger_on_high_latency(settings, caplog):
+    from monitoring.alerts import check_alerts
+
+    settings.SENTRY_DSN = ""
+    for _ in range(10):
+        record_request(200, 2000)
+    with caplog.at_level("WARNING", logger="monitoring"):
+        check_alerts()
+    assert any("latency" in record.message for record in caplog.records)
+
+
+@pytest.mark.django_db
+def test_metrics_avg_and_p95_latency():
+    record_request(200, 100)
+    record_request(200, 200)
+    record_request(200, 300)
+    snapshot = get_snapshot()
+    assert snapshot["avg_latency_ms"] == 200.0
+    assert snapshot["p95_latency_ms"] == 200

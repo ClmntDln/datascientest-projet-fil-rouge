@@ -91,4 +91,60 @@ describe('Article', () => {
         });
         expect(mockNavigate).toHaveBeenCalledWith('/blog');
     });
+
+    it('ne supprime pas si la confirmation est refusée', async () => {
+        useAuth.mockReturnValue({ user: { id: 5 } });
+        apiFetch.mockResolvedValueOnce(article);
+        vi.stubGlobal(
+            'confirm',
+            vi.fn(() => false),
+        );
+
+        const user = userEvent.setup();
+        renderWithRoutes(<Route path="/blog/:id" element={<Article />} />, {
+            initialEntries: ['/blog/1'],
+        });
+
+        await user.click(
+            await screen.findByRole('button', { name: /supprimer/i }),
+        );
+
+        expect(apiFetch).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('affiche une erreur si la suppression échoue', async () => {
+        useAuth.mockReturnValue({ user: { id: 5 } });
+        apiFetch.mockResolvedValueOnce(article);
+        apiFetch.mockRejectedValueOnce(new Error('Suppression refusée'));
+        vi.stubGlobal(
+            'confirm',
+            vi.fn(() => true),
+        );
+
+        const user = userEvent.setup();
+        renderWithRoutes(<Route path="/blog/:id" element={<Article />} />, {
+            initialEntries: ['/blog/1'],
+        });
+
+        await user.click(
+            await screen.findByRole('button', { name: /supprimer/i }),
+        );
+
+        expect(
+            await screen.findByText('Suppression refusée'),
+        ).toBeInTheDocument();
+        expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it("affiche un message d'erreur si l'article est introuvable", async () => {
+        apiFetch.mockRejectedValueOnce(new Error('Article introuvable.'));
+        renderWithRoutes(<Route path="/blog/:id" element={<Article />} />, {
+            initialEntries: ['/blog/1'],
+        });
+
+        expect(
+            await screen.findByText('Article introuvable.'),
+        ).toBeInTheDocument();
+    });
 });

@@ -64,4 +64,68 @@ describe('ArticleNew', () => {
         expect(call.body.get('content')).toBe('Contenu test');
         expect(mockNavigate).toHaveBeenCalledWith('/blog/9');
     });
+
+    it('affiche une erreur si la publication échoue', async () => {
+        apiFetch.mockRejectedValueOnce(new Error('Erreur serveur'));
+        const user = userEvent.setup();
+        renderWithRoutes(
+            <Route path="/blog/nouveau" element={<ArticleNew />} />,
+            { initialEntries: ['/blog/nouveau'] },
+        );
+
+        await user.type(screen.getByLabelText('Titre'), 'Titre test');
+        await user.type(screen.getByLabelText('Extrait'), 'Extrait test');
+        await user.type(screen.getByLabelText('Contenu'), 'Contenu test');
+        await user.click(screen.getByRole('button', { name: /publier/i }));
+
+        expect(await screen.findByText('Erreur serveur')).toBeInTheDocument();
+        expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    it('précharge le formulaire en mode édition', async () => {
+        apiFetch.mockResolvedValueOnce({
+            title: 'Article existant',
+            excerpt: 'Extrait existant',
+            content: 'Contenu existant',
+            image: null,
+        });
+        renderWithRoutes(
+            <Route path="/blog/nouveau" element={<ArticleNew />} />,
+            { initialEntries: ['/blog/nouveau?edit=3'] },
+        );
+
+        expect(
+            await screen.findByDisplayValue('Article existant'),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('heading', { name: /modifier l'article/i }),
+        ).toBeInTheDocument();
+        expect(
+            screen.getByRole('button', { name: /enregistrer/i }),
+        ).toBeInTheDocument();
+    });
+
+    it('publie une modification via PATCH en mode édition', async () => {
+        apiFetch.mockResolvedValueOnce({
+            title: 'Article existant',
+            excerpt: 'Extrait existant',
+            content: 'Contenu existant',
+            image: null,
+        });
+        apiFetch.mockResolvedValueOnce({ id: 3 });
+        const user = userEvent.setup();
+        renderWithRoutes(
+            <Route path="/blog/nouveau" element={<ArticleNew />} />,
+            { initialEntries: ['/blog/nouveau?edit=3'] },
+        );
+
+        await screen.findByDisplayValue('Article existant');
+        await user.click(screen.getByRole('button', { name: /enregistrer/i }));
+
+        expect(apiFetch).toHaveBeenLastCalledWith(
+            '/articles/3/',
+            expect.objectContaining({ method: 'PATCH', auth: true }),
+        );
+        expect(mockNavigate).toHaveBeenCalledWith('/blog/3');
+    });
 });

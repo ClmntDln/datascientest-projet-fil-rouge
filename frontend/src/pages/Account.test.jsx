@@ -69,6 +69,58 @@ describe('Account', () => {
         ).toBeInTheDocument();
     });
 
+    it("affiche une erreur si l'export échoue", async () => {
+        mockExport.mockRejectedValueOnce(new Error('Export impossible.'));
+        const user = userEvent.setup();
+        renderWithRoutes(<Route path="/compte" element={<Account />} />, {
+            initialEntries: ['/compte'],
+        });
+
+        await user.click(
+            screen.getByRole('button', { name: /exporter mes données/i }),
+        );
+        expect(
+            await screen.findByText('Export impossible.'),
+        ).toBeInTheDocument();
+    });
+
+    it('supprime le compte après confirmation', async () => {
+        mockDelete.mockResolvedValueOnce();
+        vi.stubGlobal(
+            'confirm',
+            vi.fn(() => true),
+        );
+        const user = userEvent.setup();
+        renderWithRoutes(<Route path="/compte" element={<Account />} />, {
+            initialEntries: ['/compte'],
+        });
+
+        await user.click(
+            screen.getByRole('button', { name: /supprimer mon compte/i }),
+        );
+
+        expect(mockDelete).toHaveBeenCalled();
+        expect(mockLogout).toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledWith('/');
+    });
+
+    it('ne supprime pas le compte si la confirmation est refusée', async () => {
+        vi.stubGlobal(
+            'confirm',
+            vi.fn(() => false),
+        );
+        const user = userEvent.setup();
+        renderWithRoutes(<Route path="/compte" element={<Account />} />, {
+            initialEntries: ['/compte'],
+        });
+
+        await user.click(
+            screen.getByRole('button', { name: /supprimer mon compte/i }),
+        );
+
+        expect(mockDelete).not.toHaveBeenCalled();
+    });
+
     it('masque la suppression pour les comptes staff', () => {
         useAuth.mockReturnValue({
             user: {

@@ -104,6 +104,30 @@ describe('ProtectedRoute', () => {
         ).toBeInTheDocument();
     });
 
+    it('autorise un administrateur sur une route staffOnly', () => {
+        useAuth.mockReturnValue({
+            user: {
+                id: 1,
+                email: 'admin@weeb.local',
+                is_active: true,
+                is_staff: true,
+            },
+            loading: false,
+        });
+        renderWithRoutes(
+            <Route
+                path="/admin"
+                element={
+                    <ProtectedRoute staffOnly>
+                        <ProtectedContent />
+                    </ProtectedRoute>
+                }
+            />,
+            { initialEntries: ['/admin'] },
+        );
+        expect(screen.getByText('Contenu protégé')).toBeInTheDocument();
+    });
+
     it("affiche un message si le compte n'est pas activé", () => {
         useAuth.mockReturnValue({
             user: {
